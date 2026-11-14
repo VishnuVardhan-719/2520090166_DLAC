@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VisionPort – Intelligent Vehicle Detection & Traffic Monitoring</title>
+  <style>
+    :root {
+      --bg-canvas: #090d16;
+      --bg-surface: #111827;
+      --bg-card: #1f2937;
+      --bg-card-hover: #283548;
+      --border: #374151;
+      --border-accent: #38bdf8;
+      --text-primary: #f9fafb;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      --cyan: #38bdf8;
+      --cyan-glow: rgba(56, 189, 248, 0.25);
+      --green: #22c55e;
+      --green-glow: rgba(34, 197, 94, 0.2);
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --red-glow: rgba(239, 68, 68, 0.35);
+      --purple: #a855f7;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 20px 16px 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .app-container {
+      max-width: 1320px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* Header Bar */
+    header.header-card {
+      background: linear-gradient(135deg, #131c2e 0%, #0b1120 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .brand-title h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-title p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    .header-badges {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .badge-pill {
+      background: #1e293b;
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+    }
+
+    /* Congestion Alert Banner */
+    .congestion-alert-banner {
+      display: none;
+      background: linear-gradient(90deg, #991b1b, #dc2626);
+      border: 1px solid #f87171;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-weight: 700;
+      text-align: center;
+      font-size: 0.95rem;
+      box-shadow: 0 0 20px var(--red-glow);
+      animation: alertPulse 1.8s infinite;
+    }
+
+    @keyframes alertPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.88; transform: scale(1.006); }
+    }
+
+    /* Task Navigation & Selector Section */
+    .task-nav-container {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .task-selector-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .task-selector-row label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--cyan);
+    }
+
+    .task-dropdown {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      padding: 9px 14px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      outline: none;
+      flex: 1;
+      min-width: 280px;
+      cursor: pointer;
+      transition: border 0.2s;
+    }
+
+    .task-dropdown:focus {
+      border-color: var(--cyan);
+    }
+
+    /* Task Pill Strip */
+    .task-pills-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .task-pill {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .task-pill:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+      border-color: #4b5563;
+    }
+
+    .task-pill.active {
+      background: var(--cyan);
+      color: #0b1120;
+      border-color: var(--cyan);
+      box-shadow: 0 0 14px var(--cyan-glow);
+    }
+
+    /* Task Details Card */
+    .task-details-card {
+      background: #1e293b;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--cyan);
+      border-radius: 8px;
+      padding: 12px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .task-details-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .task-title-text {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .expected-output-badge {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .task-method-text {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+
+    /* Quick Test Presets Toolbar */
+    .presets-bar {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .presets-bar span.presets-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+    }
+
+    .btn-preset {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-preset:hover {
+      background: var(--cyan);
+      color: #090d16;
+      border-color: var(--cyan);
+    }
+
+    .btn-cam {
+      background: #047857;
+      border-color: #059669;
+      color: #fff;
+    }
+
+    .btn-cam:hover {
+      background: #10b981;
+      border-color: #10b981;
+      color: #090d16;
+    }
+
+    /* Metrics Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .metric-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .metric-card:hover {
+      border-color: var(--cyan);
+      transform: translateY(-2px);
+    }
+
+    .metric-label {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .metric-value {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .density-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      width: fit-content;
+    }
+
+    .badge-low { background: rgba(34, 197, 94, 0.2); color: var(--green); border: 1px solid var(--green); }
+    .badge-medium { background: rgba(245, 158, 11, 0.2); color: var(--amber); border: 1px solid var(--amber); }
+    .badge-high { background: rgba(239, 68, 68, 0.25); color: var(--red); border: 1px solid var(--red); }
+
+    /* Main Workspace */
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 18px;
+    }
+
+    @media (max-width: 960px) {
+      .workspace-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Left Sidebar: Upload & Controls */
+    .control-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .upload-box {
+      background: var(--bg-surface);
+      border: 2px dashed var(--border);
+      border-radius: 14px;
+      padding: 28px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .upload-box:hover {
+      border-color: var(--cyan);
+      background: rgba(56, 189, 248, 0.04);
+    }
+
+    .upload-icon {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+
+    .upload-box h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .upload-box p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .btn-browse {
+      background: var(--cyan);
+      color: #0b1120;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 8px 18px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-browse:hover {
+      background: #7dd3fc;
+    }
+
+    #file-input {
+      display: none;
+    }
+
+    .slider-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--cyan);
+      cursor: pointer;
+    }
+
+    /* Right Side: Display Canvas / Screen */
+    .display-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 480px;
+    }
+
+    .display-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .display-header h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-action {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-action:hover {
+      background: var(--cyan);
+      color: #0b1120;
+      border-color: var(--cyan);
+    }
+
+    .preview-viewport {
+      background: #000;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      position: relative;
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #output-image {
+      max-width: 100%;
+      max-height: 580px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 6px;
+      transition: opacity 0.25s ease;
+    }
+
+    #output-video {
+      max-width: 100%;
+      max-height: 580px;
+      display: none;
+      border-radius: 6px;
+    }
+
+    .spinner-loader {
+      display: none;
+      position: absolute;
+      width: 52px;
+      height: 52px;
+      border: 4px solid rgba(56, 189, 248, 0.2);
+      border-top-color: var(--cyan);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Breakdown Chips */
+    .chips-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 5px 12px;
+      border-radius: 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .chip-item b {
+      color: var(--cyan);
+    }
+
+    /* Task 5 Gallery Grid */
+    #task5-gallery {
+      display: none;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+      max-height: 420px;
+      overflow-y: auto;
+      padding: 8px;
+      background: #0b1120;
+      border-radius: 8px;
+    }
+
+    .gallery-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .gallery-card img {
+      width: 100%;
+      height: 110px;
+      object-fit: cover;
+      cursor: pointer;
+    }
+
+    .gallery-card-footer {
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Task 1 Diagnostic View */
+    #task1-diag {
+      display: none;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      max-height: 380px;
+      overflow-y: auto;
+    }
+
+    .diag-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+
+    .diag-table th, .diag-table td {
+      padding: 6px 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .diag-table th {
+      color: var(--cyan);
+      font-size: 0.8rem;
+    }
+
+    .text-ok { color: var(--green); font-weight: bold; }
+    .text-fail { color: var(--red); font-weight: bold; }
+
+    /* Detections Data Table (Collapsible) */
+    details.details-table-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 18px;
+    }
+
+    details.details-table-box summary {
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--cyan);
+      outline: none;
+    }
+
+    .detections-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 0.82rem;
+    }
+
+    .detections-table th, .detections-table td {
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .detections-table th {
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Header Bar -->
+  <header class="header-card">
+    <div class="brand-title">
+      <h1>🚦 VisionPort: Intelligent Traffic Monitor</h1>
+      <p>Deep Learning Vehicle Detection, Tracking, Signal Identification & Waiting-Time Telemetry</p>
+    </div>
+    <div class="header-badges">
+      <span class="badge-pill"><span class="status-dot"></span> System Online</span>
+      <span class="badge-pill">Model: <strong>YOLOv8 Nano</strong></span>
+      <span class="badge-pill" id="badge-accelerator">Device: <strong>CPU</strong></span>
+      <span class="badge-pill">Latency: <strong id="header-latency">~30ms</strong></span>
+    </div>
+  </header>
+
+  <!-- Live Server Warning Banner -->
+  <div id="live-server-warning" style="display:none; background: #e63946; color: #ffffff; padding: 12px 20px; border-radius: 8px; margin: 0 auto 16px auto; font-size: 14px; text-align: center; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 16px rgba(230,57,70,0.3);">
+    ⚠️ <strong>Live Server Detected (Port 5500):</strong> Static web servers cannot run Python or YOLO deep learning models. Please run <code>.\.venv\Scripts\python.exe main.py</code> and open <a href="http://127.0.0.1:8000" style="color:#00ffff; font-weight:700; text-decoration:underline;">http://127.0.0.1:8000</a> directly!
+  </div>
+
+  <!-- Congestion Warning Banner -->
+  <div id="congestion-banner" class="congestion-alert-banner">
+    ⚠️ TRAFFIC CONGESTION ALERT: Junction queue capacity exceeded! High vehicle density waiting at signal.
+  </div>
+
+  <!-- Task Navigation & Selector -->
+  <section class="task-nav-container">
+    <div class="task-selector-row">
+      <label for="task-select">Select Task:</label>
+      <select id="task-select" class="task-dropdown" onchange="onTaskSelect(this.value)">
+        <option value="all">⚡ Full Pipeline (All 15 Tasks Combined)</option>
+        <option value="1">Task 1: Install Python, OpenCV & Required Libraries</option>
+        <option value="2">Task 2: Capture Image Using Camera</option>
+        <option value="3">Task 3: Read & Display Traffic Images</option>
+        <option value="4">Task 4: Load & Play Traffic Video</option>
+        <option value="5">Task 5: Extract Frames from Traffic Videos</option>
+        <option value="6">Task 6: Detect Cars in Video / Image Using YOLO</option>
+        <option value="7">Task 7: Detect Bikes, Buses & Trucks</option>
+        <option value="8">Task 8: Display Vehicle Names & Confidence Scores</option>
+        <option value="9">Task 9: Count Number of Vehicles in Frame</option>
+        <option value="10">Task 10: Calculate Traffic Density (Low/Med/High)</option>
+        <option value="11">Task 11: Detect Traffic Congestion at Signal Junctions</option>
+        <option value="12">Task 12: Track Individual Vehicles Across Frames</option>
+        <option value="13">Task 13: Calculate Approximate Vehicle Speed (km/h)</option>
+        <option value="14">Task 14: Identify Traffic Signal Status (Red/Yellow/Green)</option>
+        <option value="15">Task 15: Estimate Traffic Waiting Time</option>
+      </select>
+    </div>
+
+    <!-- Quick Pill Nav Strip -->
+    <div class="task-pills-scroll" id="task-pills">
+      <button class="task-pill active" data-task="all" onclick="selectTask('all')">⚡ All Tasks</button>
+      <button class="task-pill" data-task="1" onclick="selectTask('1')">T1: Env Check</button>
+      <button class="task-pill" data-task="2" onclick="selectTask('2')">T2: Camera</button>
+      <button class="task-pill" data-task="3" onclick="selectTask('3')">T3: Read Image</button>
+      <button class="task-pill" data-task="4" onclick="selectTask('4')">T4: Play Video</button>
+      <button class="task-pill" data-task="5" onclick="selectTask('5')">T5: Frames</button>
+      <button class="task-pill" data-task="6" onclick="selectTask('6')">T6: Cars</button>
+      <button class="task-pill" data-task="7" onclick="selectTask('7')">T7: Multi-Vehicle</button>
+      <button class="task-pill" data-task="8" onclick="selectTask('8')">T8: Labels & Conf</button>
+      <button class="task-pill" data-task="9" onclick="selectTask('9')">T9: Count</button>
+      <button class="task-pill" data-task="10" onclick="selectTask('10')">T10: Density</button>
+      <button class="task-pill" data-task="11" onclick="selectTask('11')">T11: Congestion</button>
+      <button class="task-pill" data-task="12" onclick="selectTask('12')">T12: Tracking</button>
+      <button class="task-pill" data-task="13" onclick="selectTask('13')">T13: Speed</button>
+      <button class="task-pill" data-task="14" onclick="selectTask('14')">T14: Signal</button>
+      <button class="task-pill" data-task="15" onclick="selectTask('15')">T15: Wait Time</button>
+    </div>
+
+    <!-- Task Details Card -->
+    <div class="task-details-card" id="task-details-box">
+      <div class="task-details-header">
+        <span class="task-title-text" id="cur-task-title">Full Telemetry Pipeline (All Tasks Combined)</span>
+        <span class="expected-output-badge" id="cur-task-expected">Expected: Unified Traffic Intelligence Dashboard</span>
+      </div>
+      <p class="task-method-text" id="cur-task-method">
+        End-to-end integration running YOLOv8 detection, ByteTrack tracking, HSV signal analysis, density classification, congestion alarms, and queue delay models in parallel.
+      </p>
+    </div>
+  </section>
+
+  <!-- Quick Test Presets Toolbar -->
+  <section class="presets-bar">
+    <span class="presets-label">Test Presets:</span>
+    <button class="btn-preset" onclick="loadPreset('intersection')">🚌 Urban Junction</button>
+    <button class="btn-preset" onclick="loadPreset('congested')">🚨 Heavy Congestion</button>
+    <button class="btn-preset" onclick="loadPreset('signal')">🚦 Traffic Signal</button>
+    <button class="btn-preset" onclick="loadPreset('video_sample')">🎥 Multi-Phase Video</button>
+    <button class="btn-preset btn-cam" onclick="captureCamera()">📷 Snap Webcam</button>
+  </section>
+
+  <!-- Telemetry Metrics Grid -->
+  <section class="metrics-grid">
+    <div class="metric-card">
+      <span class="metric-label">Total Vehicles</span>
+      <span class="metric-value" id="val-vehicles">0</span>
+    </div>
+    <div class="metric-card">
+      <span class="metric-label">Traffic Density</span>
+      <span class="density-badge badge-low" id="val-density">LOW</span>
+    </div>
+    <div class="metric-card">
+      <span class="metric-label">Signal Light</span>
+      <span class="metric-value" id="val-signal" style="font-size: 1.15rem; color: #ef4444;">🔴 RED</span>
+    </div>
+    <div class="metric-card">
+      <span class="metric-label">Avg Speed</span>
+      <span class="metric-value" id="val-speed" style="color: #38bdf8;">0.0 km/h</span>
+    </div>
+    <div class="metric-card">
+      <span class="metric-label">Est. Wait Time</span>
+      <span class="metric-value" id="val-waittime" style="color: #22c55e;">0.0s</span>
+    </div>
+    <div class="metric-card">
+      <span class="metric-label">Inference Latency</span>
+      <span class="metric-value" id="val-latency">~30ms</span>
+    </div>
+  </section>
+
+  <!-- Main Workspace (Upload + Output Preview) -->
+  <div class="workspace-grid">
+    <!-- Left Sidebar: Controls -->
+    <div class="control-panel">
+      <!-- Upload Drop Zone -->
+      <div class="upload-box" onclick="document.getElementById('file-input').click()">
+        <div class="upload-icon">📁</div>
+        <h3>Upload Image or Video</h3>
+        <p>Supports JPG, PNG, WEBP, MP4, AVI</p>
+        <button type="button" class="btn-browse">Browse Local File</button>
+        <input type="file" id="file-input" accept="image/*,video/*" onchange="handleFileSelect(event)" />
+      </div>
+
+      <!-- Confidence Threshold Slider -->
+      <div class="slider-box">
+        <div class="slider-header">
+          <span>Confidence Threshold</span>
+          <span id="conf-val-label">0.25</span>
+        </div>
+        <input type="range" id="conf-slider" min="0.10" max="0.90" step="0.05" value="0.25" oninput="updateConf(this.value)" />
+      </div>
+
+      <!-- Action Extract Frames (for Task 5 or Videos) -->
+      <div class="slider-box" id="frame-extract-controls">
+        <div class="slider-header">
+          <span>Task 5 Keyframe Interval</span>
+          <span id="interval-val-label">15 frames</span>
+        </div>
+        <input type="range" id="interval-slider" min="5" max="60" step="5" value="15" oninput="document.getElementById('interval-val-label').innerText = this.value + ' frames'" />
+        <button class="btn-browse" style="margin-top: 6px; width: 100%;" onclick="triggerFrameExtraction()">Extract Video Frames Gallery</button>
+      </div>
+    </div>
+
+    <!-- Right Side: Display Screen -->
+    <div class="display-panel">
+      <div class="display-header">
+        <h3>
+          <span id="display-mode-label">Output Preview</span>
+          <span id="fps-label" style="font-size: 0.8rem; color: var(--text-muted); font-weight: normal;">Ready</span>
+        </h3>
+        <div class="action-buttons">
+          <button class="btn-action" onclick="downloadCurrentOutput()">💾 Save Output</button>
+          <button class="btn-action" onclick="downloadJsonReport()">📄 JSON Report</button>
+        </div>
+      </div>
+
+      <!-- Viewport Canvas / Image Preview -->
+      <div class="preview-viewport">
+        <div id="loading-spinner" class="spinner-loader"></div>
+        <img id="output-image" src="/samples/traffic_intersection.jpg" alt="Traffic Telemetry Stream" />
+        <video id="output-video" controls autoplay loop muted></video>
+
+        <!-- Task 1 Diagnostic Box -->
+        <div id="task1-diag"></div>
+
+        <!-- Task 5 Gallery Grid -->
+        <div id="task5-gallery"></div>
+      </div>
+
+      <!-- Chips Breakdown Bar -->
+      <div class="chips-bar" id="breakdown-chips">
+        <span class="chip-item">Cars: <b id="cnt-cars">0</b></span>
+        <span class="chip-item">Bikes: <b id="cnt-bikes">0</b></span>
+        <span class="chip-item">Buses: <b id="cnt-buses">0</b></span>
+        <span class="chip-item">Trucks: <b id="cnt-trucks">0</b></span>
+        <span class="chip-item">Congestion: <b id="cnt-cong">NONE</b></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Collapsible Detections Log Table -->
+  <details class="details-table-box">
+    <summary>📋 View Per-Vehicle Detections & Bounding Box Telemetry</summary>
+    <table class="detections-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Track ID</th>
+          <th>Class</th>
+          <th>Confidence</th>
+          <th>Bounding Box (x1, y1, x2, y2)</th>
+        </tr>
+      </thead>
+      <tbody id="detections-tbody">
+        <tr>
+          <td colspan="5" style="color: var(--text-muted); text-align: center;">No active detections yet. Upload a file or click a preset.</td>
+        </tr>
+      </tbody>
+    </table>
+  </details>
+</div>
+
+<script>
+  // Automatic Backend Detection (connects to FastAPI even if opened via Live Server port 5500)
+  const API_BASE = (window.location.port === "8000") ? "" : "http://127.0.0.1:8000";
+
+  if (window.location.port !== "8000") {
+    const liveWarn = document.getElementById("live-server-warning");
+    if (liveWarn) liveWarn.style.display = "block";
+  }
+
+  let currentTaskId = "all";
+  let currentConf = 0.25;
+  let currentTelemetry = null;
+  let lastImageBase64 = null;
+  let currentSampleVideo = "traffic_sample.mp4";
+
+  // Task catalog metadata cached on client
+  const TASK_METADATA = {
+    "all": {
+      title: "Full Telemetry Pipeline (All Tasks Combined)",
+      expected: "Expected: Unified Traffic Intelligence Dashboard",
+      method: "End-to-end integration running YOLOv8 detection, ByteTrack tracking, HSV signal analysis, density classification, congestion alarms, and queue delay models in parallel."
+    },
+    "1": {
+      title: "Task 1: Install Python, OpenCV & Required Libraries",
+      expected: "Expected: Working Python environment",
+      method: "Environment validation for Python 3.14, OpenCV 5.0, PyTorch CPU/CUDA, Ultralytics YOLOv8, and LAP tracker packages."
+    },
+    "2": {
+      title: "Task 2: Capture Image of Traffic Signal Using Camera",
+      expected: "Expected: Traffic image capture",
+      method: "Hardware webcam frame acquisition via OpenCV VideoCapture(0) with fallback to camera snapshot image."
+    },
+    "3": {
+      title: "Task 3: Read & Display Traffic Images Using OpenCV",
+      expected: "Expected: Image display window",
+      method: "Decodes image buffer; inspects pixel dimensions, channels (BGR), file size, dynamic range, and displays annotated canvas."
+    },
+    "4": {
+      title: "Task 4: Load & Play Traffic Video Using OpenCV",
+      expected: "Expected: Video playback",
+      method: "Video stream decoding via cv2.VideoCapture with real-time frame timestamps, FPS rate, and playback preview."
+    },
+    "5": {
+      title: "Task 5: Extract Individual Frames from Traffic Videos",
+      expected: "Expected: Frames saved as images",
+      method: "Keyframe sampling at specified interval, saving lossless image thumbnails to the output gallery grid."
+    },
+    "6": {
+      title: "Task 6: Detect Cars in Video / Image Using YOLO",
+      expected: "Expected: Car detection with bounding boxes",
+      method: "Filtered YOLOv8 inference targeting COCO Class 2 (Car) exclusively with cyan bounding boxes."
+    },
+    "7": {
+      title: "Task 7: Detect Bikes, Buses & Trucks",
+      expected: "Expected: Multiple vehicle detection",
+      method: "Multi-class detection for two-wheelers (bicycles/motorcycles), buses, and commercial trucks with distinct color markers."
+    },
+    "8": {
+      title: "Task 8: Display Vehicle Names & Confidence Scores",
+      expected: "Expected: Labelled detection output",
+      method: "Labeled text plaques on bounding boxes formatted as `CLASS | CONF%` with precision confidence tables."
+    },
+    "9": {
+      title: "Task 9: Count Number of Vehicles in Frame",
+      expected: "Expected: Vehicle count",
+      method: "Instantaneous vehicle census computing total population and category breakdown (Cars, Bikes, Buses, Trucks)."
+    },
+    "10": {
+      title: "Task 10: Calculate Traffic Density Based on Count",
+      expected: "Expected: Low, medium and high traffic",
+      method: "Threshold-based density classifier: LOW (<=5 vehicles), MEDIUM (6-12 vehicles), HIGH (>12 vehicles)."
+    },
+    "11": {
+      title: "Task 11: Detect Traffic Congestion at Signal Junctions",
+      expected: "Expected: Congestion alerts",
+      method: "Bottleneck analyzer combining vehicle count queue (>=8), stopped vehicles, and signal phases to trigger alarms."
+    },
+    "12": {
+      title: "Task 12: Track Individual Vehicles Across Frames",
+      expected: "Expected: Vehicle tracking IDs",
+      method: "ByteTrack multi-object tracking association with Kalman filters for persistent unique vehicle IDs and motion trails."
+    },
+    "13": {
+      title: "Task 13: Calculate Approximate Vehicle Speed",
+      expected: "Expected: Speed estimation",
+      method: "Centroid pixel displacement over temporal frame window converted via calibrated pixels-per-meter scale into km/h."
+    },
+    "14": {
+      title: "Task 14: Identify Traffic Signal Status (Red, Yellow, Green)",
+      expected: "Expected: Signal status detection",
+      method: "YOLO traffic light localization combined with HSV color mask segmentation for Red, Yellow, and Green lamps."
+    },
+    "15": {
+      title: "Task 15: Estimate Traffic Waiting Time",
+      expected: "Expected: Waiting-time report",
+      method: "Webster's queue clearance equation computing signal cycle backlog, clearance delay, and driver wait time in seconds."
+    }
+  };
+
+  function updateConf(val) {
+    currentConf = parseFloat(val);
+    document.getElementById("conf-val-label").innerText = currentConf.toFixed(2);
+  }
+
+  function selectTask(taskId) {
+    currentTaskId = String(taskId);
+    document.getElementById("task-select").value = currentTaskId;
+    updateTaskUI();
+    retriggerCurrentView();
+  }
+
+  function onTaskSelect(taskId) {
+    currentTaskId = String(taskId);
+    updateTaskUI();
+    retriggerCurrentView();
+  }
+
+  function updateTaskUI() {
+    // Update active pill
+    document.querySelectorAll(".task-pill").forEach(p => {
+      if (p.getAttribute("data-task") === currentTaskId) {
+        p.classList.add("active");
+        p.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      } else {
+        p.classList.remove("active");
+      }
+    });
+
+    // Update Details Card
+    const info = TASK_METADATA[currentTaskId] || TASK_METADATA["all"];
+    document.getElementById("cur-task-title").innerText = info.title;
+    document.getElementById("cur-task-expected").innerText = info.expected;
+    document.getElementById("cur-task-method").innerText = info.method;
+    document.getElementById("display-mode-label").innerText = `Output Preview: ${info.title}`;
+
+    // Adjust views
+    const isTask1 = currentTaskId === "1";
+    const isTask5 = currentTaskId === "5";
+    document.getElementById("task1-diag").style.display = isTask1 ? "block" : "none";
+    document.getElementById("task5-gallery").style.display = isTask5 ? "grid" : "none";
+    document.getElementById("output-image").style.display = (isTask1 || isTask5) ? "none" : "block";
+    document.getElementById("output-video").style.display = "none";
+  }
+
+  function setLoader(loading) {
+    const spinner = document.getElementById("loading-spinner");
+    const img = document.getElementById("output-image");
+    spinner.style.display = loading ? "block" : "none";
+    img.style.opacity = loading ? "0.3" : "1";
+  }
+
+  function handleApiError(err, contextMsg, isInitial = false) {
+    console.warn(`[VisionPort Error] ${contextMsg}:`, err);
+
+    if (isInitial) {
+      const liveWarn = document.getElementById("live-server-warning");
+      if (liveWarn) {
+        liveWarn.style.display = "block";
+        liveWarn.innerHTML = `
+          ⏳ <strong>Connecting to Python Backend (Port 8000)...</strong><br>
+          If not running, start it in terminal: <code>.\\.venv\\Scripts\\python.exe main.py</code>, or open <a href="http://127.0.0.1:8000" style="color:#00ffff; font-weight:700; text-decoration:underline;">http://127.0.0.1:8000</a>
+        `;
+      }
+      setTimeout(checkBackendHealth, 2500);
+      return;
+    }
+
+    if (err.message && (err.message.includes("Method Not Allowed") || err.message.includes("Failed to fetch") || err.message.includes("NetworkError"))) {
+      alert(
+        "⚠️ Cannot connect to VisionPort Backend!\n\n" +
+        "Please ensure the server is running:\n" +
+        "1. In your terminal, run:\n   .\\.venv\\Scripts\\python.exe main.py\n\n" +
+        "2. Open http://127.0.0.1:8000 in your browser."
+      );
+    } else {
+      alert(`[VisionPort Error] ${contextMsg}: ${err.message}`);
+    }
+  }
+
+  async function checkBackendHealth() {
+    try {
+      const resp = await fetch(`${API_BASE}/status/`);
+      if (resp.ok) {
+        const liveWarn = document.getElementById("live-server-warning");
+        if (window.location.port === "8000") {
+          if (liveWarn) liveWarn.style.display = "none";
+        } else {
+          if (liveWarn) {
+            liveWarn.style.background = "#1b4332";
+            liveWarn.innerHTML = `
+              ✅ <strong>Connected to Python Backend!</strong> Running on port 8000. 
+              (You can also open <a href="http://127.0.0.1:8000" style="color:#00ffff; font-weight:700; text-decoration:underline;">http://127.0.0.1:8000</a> directly).
+            `;
+            liveWarn.style.display = "block";
+          }
+        }
+        if (!currentTelemetry) {
+          loadPreset("intersection", false);
+        }
+      }
+    } catch (e) {
+      // Retry in 3s if still disconnected
+      setTimeout(checkBackendHealth, 3000);
+    }
+  }
+
+  // Handle User File Upload
+  async function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    setLoader(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("task_id", currentTaskId);
+    formData.append("conf", currentConf);
+
+    try {
+      const resp = await fetch(`${API_BASE}/process/`, {
+        method: "POST",
+        body: formData
+      });
+      if (!resp.ok) throw new Error("Upload processing failed: " + resp.statusText);
+      const data = await resp.json();
+      applyInferenceResult(data);
+    } catch (err) {
+      handleApiError(err, "File Upload Processing");
+    } finally {
+      setLoader(false);
+    }
+  }
+
+  // Load Pre-defined Preset
+  async function loadPreset(presetName, isInitial = false) {
+    setLoader(true);
+    try {
+      if (currentTaskId === "1") {
+        await loadEnvReport();
+        return;
+      }
+      if (currentTaskId === "5" && (presetName === "video_sample" || presetName.includes("video"))) {
+        await triggerFrameExtraction("traffic_sample.mp4");
+        return;
+      }
+
+      const resp = await fetch(`${API_BASE}/sample/${presetName}?task_id=${currentTaskId}&conf=${currentConf}`);
+      if (!resp.ok) throw new Error("Failed to load preset: " + resp.statusText);
+      const data = await resp.json();
+      applyInferenceResult(data);
+    } catch (err) {
+      handleApiError(err, "Loading Preset", isInitial);
+    } finally {
+      setLoader(false);
+    }
+  }
+
+  // Camera Capture
+  async function captureCamera() {
+    setLoader(true);
+    try {
+      const resp = await fetch(`${API_BASE}/camera/capture?task_id=${currentTaskId}`);
+      if (!resp.ok) throw new Error("Camera capture failed: " + resp.statusText);
+      const data = await resp.json();
+      applyInferenceResult(data);
+    } catch (err) {
+      handleApiError(err, "Webcam Capture");
+    } finally {
+      setLoader(false);
+    }
+  }
+
+  // Task 1: Environment Diagnostic Report
+  async function loadEnvReport() {
+    setLoader(true);
+    try {
+      const resp = await fetch(`${API_BASE}/env_report`);
+      const env = await resp.json();
+      const diagBox = document.getElementById("task1-diag");
+      diagBox.style.display = "block";
+      document.getElementById("output-image").style.display = "none";
+      document.getElementById("task5-gallery").style.display = "none";
+
+      let rowsHtml = env.libraries.map(lib => `
+        <tr>
+          <td><strong>${lib.name}</strong></td>
+          <td>${lib.module}</td>
+          <td>${lib.version}</td>
+          <td><span class="${lib.status === 'OK' ? 'text-ok' : 'text-fail'}">[${lib.status}]</span></td>
+        </tr>
+      `).join("");
+
+      diagBox.innerHTML = `
+        <h4 style="color: var(--cyan); margin-bottom: 8px;">Task 1: Python Environment & Deep Learning Libraries</h4>
+        <p><strong>Python:</strong> ${env.python_version} (${env.executable})</p>
+        <p><strong>OS:</strong> ${env.os_platform} | <strong>Accelerator:</strong> ${env.hardware_accelerator}</p>
+        <p><strong>YOLO Weights:</strong> yolov8n.pt (${env.weights_size_mb} MB) - <span class="text-ok">[READY]</span></p>
+        <table class="diag-table">
+          <thead>
+            <tr><th>Library</th><th>Module</th><th>Installed Version</th><th>Status</th></tr>
+          </thead>
+          <tbody>${rowsHtml}</tbody>
+        </table>
+      `;
+
+      document.getElementById("val-latency").innerText = "<5ms";
+      document.getElementById("val-vehicles").innerText = "Ready";
+      document.getElementById("val-density").innerText = "OK";
+      document.getElementById("val-density").className = "density-badge badge-low";
+    } catch (err) {
+      handleApiError(err, "Environment Report");
+    } finally {
+      setLoader(false);
+    }
+  }
+
+  // Task 5: Extract Frames Gallery
+  async function triggerFrameExtraction(sampleVid) {
+    setLoader(true);
+    const interval = document.getElementById("interval-slider").value;
+    const formData = new FormData();
+    formData.append("sample_video", sampleVid || currentSampleVideo);
+    formData.append("interval", interval);
+    formData.append("max_frames", 12);
+
+    try {
+      const resp = await fetch(`${API_BASE}/extract_frames/`, {
+        method: "POST",
+        body: formData
+      });
+      if (!resp.ok) throw new Error("Frame extraction failed: " + resp.statusText);
+      const res = await resp.json();
+
+      const gallery = document.getElementById("task5-gallery");
+      gallery.style.display = "grid";
+      document.getElementById("output-image").style.display = "none";
+      document.getElementById("task1-diag").style.display = "none";
+
+      gallery.innerHTML = res.frames.map(f => `
+        <div class="gallery-card">
+          <img src="${f.url}" alt="Frame ${f.frame_index}" onclick="window.open('${f.url}', '_blank')" />
+          <div class="gallery-card-footer">
+            <span>#${f.frame_index}</span>
+            <span>${f.timestamp_sec}s</span>
+          </div>
+        </div>
+      `).join("");
+
+      document.getElementById("val-vehicles").innerText = `${res.extracted_count} frames`;
+      document.getElementById("cur-task-title").innerText = `Task 5: Extracted ${res.extracted_count} Keyframes`;
+    } catch (err) {
+      handleApiError(err, "Extracting Frames");
+    } finally {
+      setLoader(false);
+    }
+  }
+
+  // Retrigger with current task
+  function retriggerCurrentView() {
+    if (currentTaskId === "1") {
+      loadEnvReport();
+    } else if (currentTaskId === "5") {
+      triggerFrameExtraction("traffic_sample.mp4");
+    } else {
+      loadPreset("intersection");
+    }
+  }
+
+  // Apply Results from Backend
+  function applyInferenceResult(data) {
+    if (!data || !data.telemetry) return;
+    const t = data.telemetry;
+    currentTelemetry = t;
+
+    // Display image
+    if (data.image_base64) {
+      lastImageBase64 = data.image_base64;
+      const img = document.getElementById("output-image");
+      img.src = data.image_base64;
+      img.style.display = "block";
+      document.getElementById("task1-diag").style.display = "none";
+      document.getElementById("task5-gallery").style.display = "none";
+    }
+
+    // Telemetry values
+    document.getElementById("val-vehicles").innerText = t.total_vehicles || "0";
+    document.getElementById("val-latency").innerText = `${t.latency_ms || 25}ms`;
+    document.getElementById("header-latency").innerText = `~${t.latency_ms || 25}ms`;
+    document.getElementById("val-speed").innerText = `${(t.avg_speed_kmh || 0).toFixed(1)} km/h`;
+    document.getElementById("val-waittime").innerText = `${(t.wait_time_sec || 0).toFixed(1)}s`;
+
+    // Traffic Density Badge
+    const densityBadge = document.getElementById("val-density");
+    densityBadge.innerText = t.density || "LOW";
+    densityBadge.className = "density-badge " + (
+      t.density === "HIGH" ? "badge-high" :
+      t.density === "MEDIUM" ? "badge-medium" : "badge-low"
+    );
+
+    // Traffic Signal Badge
+    const sigElem = document.getElementById("val-signal");
+    if (t.signal_status === "RED") {
+      sigElem.innerHTML = "🔴 RED";
+      sigElem.style.color = "#ef4444";
+    } else if (t.signal_status === "YELLOW") {
+      sigElem.innerHTML = "🟡 YELLOW";
+      sigElem.style.color = "#f59e0b";
+    } else if (t.signal_status === "GREEN") {
+      sigElem.innerHTML = "🟢 GREEN";
+      sigElem.style.color = "#22c55e";
+    } else {
+      sigElem.innerHTML = "⚪ " + (t.signal_status || "UNKNOWN");
+      sigElem.style.color = "#9ca3af";
+    }
+
+    // Congestion Alert Banner
+    const congBanner = document.getElementById("congestion-banner");
+    congBanner.style.display = t.congested ? "block" : "none";
+    if (t.congested && t.congestion_reason) {
+      congBanner.innerText = `⚠️ CONGESTION ALERT [${t.congestion_severity}]: ${t.congestion_reason}`;
+    }
+
+    // Chips Breakdown
+    if (t.breakdown) {
+      document.getElementById("cnt-cars").innerText = t.breakdown.car || 0;
+      document.getElementById("cnt-bikes").innerText = t.breakdown.bike || 0;
+      document.getElementById("cnt-buses").innerText = t.breakdown.bus || 0;
+      document.getElementById("cnt-trucks").innerText = t.breakdown.truck || 0;
+    }
+    document.getElementById("cnt-cong").innerText = t.congested ? (t.congestion_severity || "ALERT") : "NONE";
+
+    // Populate Detections Table
+    const tbody = document.getElementById("detections-tbody");
+    if (t.detections && t.detections.length > 0) {
+      tbody.innerHTML = t.detections.map((d, idx) => `
+        <tr>
+          <td>${idx + 1}</td>
+          <td><strong>${d.track_id !== null ? 'ID:' + d.track_id : '-'}</strong></td>
+          <td style="text-transform: capitalize; color: var(--cyan); font-weight: bold;">${d.label || d.raw_label}</td>
+          <td>${(d.confidence * 100).toFixed(1)}%</td>
+          <td><code>[${d.bbox.join(', ')}]</code></td>
+        </tr>
+      `).join("");
+    } else {
+      tbody.innerHTML = `<tr><td colspan="5" style="color: var(--text-muted); text-align: center;">No vehicles detected in this frame.</td></tr>`;
+    }
+  }
+
+  // Download Current Image Output
+  function downloadCurrentOutput() {
+    if (!lastImageBase64) {
+      alert("No image output available to download.");
+      return;
+    }
+    const a = document.createElement("a");
+    a.href = lastImageBase64;
+    a.download = `visionport_task_${currentTaskId}_output.jpg`;
+    a.click();
+  }
+
+  // Download JSON Report
+  function downloadJsonReport() {
+    if (!currentTelemetry) {
+      alert("No telemetry data to export.");
+      return;
+    }
+    const blob = new Blob([JSON.stringify(currentTelemetry, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `visionport_task_${currentTaskId}_telemetry.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // Initial Load on page startup
+  window.addEventListener("DOMContentLoaded", () => {
+    updateTaskUI();
+    loadPreset("intersection", true);
+    checkBackendHealth();
+  });
+</script>
+
+</body>
+</html>
+
