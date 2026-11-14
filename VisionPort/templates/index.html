@@ -4,82 +4,125 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VisionPort – Intelligent Vehicle Detection & Traffic Monitoring</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans (Headings/UI) & JetBrains Mono (Tabular Telemetry) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --bg-canvas: #090d16;
-      --bg-surface: #111827;
-      --bg-card: #1f2937;
-      --bg-card-hover: #283548;
-      --border: #374151;
+      --bg-canvas: #06090f;
+      --bg-surface: rgba(15, 23, 42, 0.72);
+      --bg-surface-elevated: rgba(30, 41, 59, 0.78);
+      --bg-card: rgba(23, 32, 51, 0.85);
+      --bg-card-hover: rgba(30, 48, 77, 0.95);
+      
+      --border: rgba(255, 255, 255, 0.08);
+      --border-light: rgba(255, 255, 255, 0.14);
       --border-accent: #38bdf8;
-      --text-primary: #f9fafb;
-      --text-secondary: #9ca3af;
-      --text-muted: #6b7280;
+      
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      
       --cyan: #38bdf8;
-      --cyan-glow: rgba(56, 189, 248, 0.25);
-      --green: #22c55e;
-      --green-glow: rgba(34, 197, 94, 0.2);
+      --cyan-bright: #00f2fe;
+      --cyan-glow: rgba(56, 189, 248, 0.35);
+      
+      --green: #10b981;
+      --green-glow: rgba(16, 185, 129, 0.35);
+      
       --amber: #f59e0b;
-      --red: #ef4444;
-      --red-glow: rgba(239, 68, 68, 0.35);
+      --amber-glow: rgba(245, 158, 11, 0.35);
+      
+      --red: #f43f5e;
+      --red-glow: rgba(244, 63, 94, 0.45);
+      
       --purple: #a855f7;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
     body {
       background-color: var(--bg-canvas);
+      background-image: 
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(56, 189, 248, 0.12), transparent 70%),
+        linear-gradient(180deg, #06090f 0%, #090e17 100%);
       color: var(--text-primary);
       min-height: 100vh;
-      padding: 20px 16px 48px;
+      padding: 24px 20px 60px;
       display: flex;
       flex-direction: column;
       align-items: center;
+      -webkit-font-smoothing: antialiased;
     }
 
     .app-container {
-      max-width: 1320px;
+      max-width: 1340px;
       width: 100%;
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 20px;
+    }
+
+    /* Glassmorphic Panel Primitive */
+    .glass-panel {
+      background: var(--bg-surface);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 12px 36px -8px rgba(0, 0, 0, 0.5);
     }
 
     /* Header Bar */
     header.header-card {
-      background: linear-gradient(135deg, #131c2e 0%, #0b1120 100%);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 18px 24px;
+      padding: 20px 28px;
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      gap: 16px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      gap: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header.header-card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, var(--cyan) 50%, var(--purple) 80%, transparent 100%);
     }
 
     .brand-title h1 {
-      font-size: 1.75rem;
+      font-size: 1.85rem;
       font-weight: 800;
-      letter-spacing: -0.5px;
-      background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
+      letter-spacing: -0.6px;
+      background: linear-gradient(90deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
     .brand-title p {
       color: var(--text-secondary);
-      font-size: 0.9rem;
-      margin-top: 4px;
+      font-size: 0.92rem;
+      font-weight: 500;
+      margin-top: 5px;
     }
 
     .header-badges {
@@ -90,16 +133,22 @@
     }
 
     .badge-pill {
-      background: #1e293b;
-      border: 1px solid var(--border);
-      padding: 6px 12px;
-      border-radius: 20px;
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid var(--border-light);
+      padding: 6px 14px;
+      border-radius: 9999px;
       font-size: 0.8rem;
       font-weight: 600;
       color: var(--text-secondary);
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-feature-settings: 'tnum';
+    }
+
+    .badge-pill strong {
+      color: var(--cyan);
     }
 
     .status-dot {
@@ -107,123 +156,166 @@
       height: 8px;
       border-radius: 50%;
       background: var(--green);
-      box-shadow: 0 0 8px var(--green);
+      box-shadow: 0 0 10px var(--green);
+      animation: pulseDot 2s infinite ease-in-out;
     }
 
-    /* Congestion Alert Banner */
-    .congestion-alert-banner {
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    /* Banners */
+    #live-server-warning {
       display: none;
       background: linear-gradient(90deg, #991b1b, #dc2626);
+      color: #ffffff;
+      padding: 14px 22px;
+      border-radius: var(--radius-md);
+      font-size: 0.9rem;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 24px rgba(220, 38, 38, 0.35);
+      animation: alertSlideDown 0.3s ease;
+    }
+
+    .congestion-alert-banner {
+      display: none;
+      background: linear-gradient(90deg, #991b1b, #ef4444);
       border: 1px solid #f87171;
       color: #fff;
-      padding: 12px 20px;
-      border-radius: 10px;
+      padding: 14px 22px;
+      border-radius: var(--radius-md);
       font-weight: 700;
       text-align: center;
       font-size: 0.95rem;
-      box-shadow: 0 0 20px var(--red-glow);
-      animation: alertPulse 1.8s infinite;
+      box-shadow: 0 0 25px var(--red-glow);
+      animation: alertPulse 1.6s infinite ease-in-out;
     }
 
     @keyframes alertPulse {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.88; transform: scale(1.006); }
+      50% { opacity: 0.9; transform: scale(1.006); }
     }
 
-    /* Task Navigation & Selector Section */
+    /* Task Navigation Container */
     .task-nav-container {
-      background: var(--bg-surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 16px 20px;
+      padding: 20px 24px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 16px;
     }
 
     .task-selector-row {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 16px;
       flex-wrap: wrap;
     }
 
     .task-selector-row label {
-      font-size: 0.85rem;
-      font-weight: 700;
+      font-size: 0.82rem;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.8px;
+      letter-spacing: 1px;
       color: var(--cyan);
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .task-dropdown {
       background: var(--bg-card);
       color: var(--text-primary);
-      border: 1px solid var(--border);
-      padding: 9px 14px;
-      border-radius: 8px;
+      border: 1px solid var(--border-light);
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
       font-size: 0.95rem;
       font-weight: 600;
       outline: none;
       flex: 1;
-      min-width: 280px;
+      min-width: 300px;
       cursor: pointer;
-      transition: border 0.2s;
+      transition: all 0.2s ease;
     }
 
     .task-dropdown:focus {
       border-color: var(--cyan);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
     }
 
-    /* Task Pill Strip */
+    /* Task Categorization Header & Pill Strip */
+    .task-phase-header {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
     .task-pills-scroll {
       display: flex;
       gap: 8px;
       overflow-x: auto;
-      padding-bottom: 6px;
+      padding-bottom: 8px;
       scrollbar-width: thin;
-      scrollbar-color: var(--border) transparent;
+      scrollbar-color: var(--border-light) transparent;
+    }
+
+    .task-pills-scroll::-webkit-scrollbar {
+      height: 6px;
+    }
+    .task-pills-scroll::-webkit-scrollbar-thumb {
+      background: var(--border-light);
+      border-radius: 999px;
     }
 
     .task-pill {
       background: var(--bg-card);
       border: 1px solid var(--border);
       color: var(--text-secondary);
-      padding: 7px 14px;
-      border-radius: 8px;
+      padding: 8px 15px;
+      border-radius: 9999px;
       font-size: 0.82rem;
       font-weight: 600;
       white-space: nowrap;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
     }
 
     .task-pill:hover {
       background: var(--bg-card-hover);
       color: var(--text-primary);
-      border-color: #4b5563;
+      border-color: rgba(56, 189, 248, 0.4);
+      transform: translateY(-1px);
     }
 
     .task-pill.active {
-      background: var(--cyan);
-      color: #0b1120;
-      border-color: var(--cyan);
-      box-shadow: 0 0 14px var(--cyan-glow);
+      background: linear-gradient(135deg, #0284c7 0%, #0284c7 10%, #38bdf8 100%);
+      color: #040812;
+      font-weight: 700;
+      border-color: #38bdf8;
+      box-shadow: 0 4px 18px var(--cyan-glow);
     }
 
     /* Task Details Card */
     .task-details-card {
-      background: #1e293b;
+      background: rgba(30, 41, 59, 0.55);
       border: 1px solid var(--border);
       border-left: 4px solid var(--cyan);
-      border-radius: 8px;
-      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      padding: 14px 20px;
       display: flex;
       flex-direction: column;
       gap: 6px;
+      transition: border-color 0.2s ease;
     }
 
     .task-details-header {
@@ -231,139 +323,210 @@
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 10px;
     }
 
     .task-title-text {
-      font-size: 1.05rem;
+      font-size: 1.1rem;
       font-weight: 700;
       color: var(--text-primary);
     }
 
     .expected-output-badge {
-      background: rgba(56, 189, 248, 0.15);
-      border: 1px solid var(--cyan);
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.4);
       color: var(--cyan);
-      padding: 3px 10px;
-      border-radius: 6px;
+      padding: 4px 12px;
+      border-radius: 9999px;
       font-size: 0.8rem;
       font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
     }
 
     .task-method-text {
-      font-size: 0.85rem;
+      font-size: 0.88rem;
       color: var(--text-secondary);
-      line-height: 1.45;
+      line-height: 1.5;
     }
 
     /* Quick Test Presets Toolbar */
     .presets-bar {
-      background: var(--bg-surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px 18px;
+      padding: 14px 22px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       flex-wrap: wrap;
     }
 
     .presets-bar span.presets-label {
-      font-size: 0.82rem;
-      font-weight: 700;
+      font-size: 0.8rem;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.6px;
+      letter-spacing: 0.8px;
       color: var(--text-muted);
     }
 
     .btn-preset {
       background: var(--bg-card);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-light);
       color: var(--text-primary);
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 0.82rem;
+      padding: 7px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.84rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .btn-preset:hover {
-      background: var(--cyan);
-      color: #090d16;
+      background: rgba(56, 189, 248, 0.15);
       border-color: var(--cyan);
+      color: var(--cyan);
+      transform: translateY(-1px);
     }
 
     .btn-cam {
-      background: #047857;
-      border-color: #059669;
-      color: #fff;
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #34d399;
+      font-weight: 700;
     }
 
     .btn-cam:hover {
-      background: #10b981;
-      border-color: #10b981;
-      color: #090d16;
+      background: var(--green);
+      border-color: var(--green);
+      color: #06090f;
+      box-shadow: 0 4px 14px var(--green-glow);
     }
 
-    /* Metrics Grid */
+    /* Bento-Style Telemetry Metrics Grid */
     .metrics-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 14px;
     }
 
     .metric-card {
-      background: var(--bg-surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px 18px;
+      padding: 16px 20px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      transition: transform 0.2s, border-color 0.2s;
+      gap: 8px;
+      position: relative;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+    }
+
+    .metric-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: transparent;
+      transition: background 0.2s ease;
     }
 
     .metric-card:hover {
-      border-color: var(--cyan);
+      border-color: rgba(56, 189, 248, 0.35);
       transform: translateY(-2px);
+      box-shadow: 0 14px 28px -8px rgba(0, 0, 0, 0.6);
+    }
+
+    .metric-card:hover::before {
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
     }
 
     .metric-label {
       color: var(--text-muted);
-      font-size: 0.78rem;
-      font-weight: 700;
+      font-size: 0.76rem;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.6px;
+      letter-spacing: 0.8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .metric-value {
-      font-size: 1.45rem;
+      font-size: 1.6rem;
       font-weight: 800;
       color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-feature-settings: 'tnum';
+      letter-spacing: -0.5px;
+    }
+
+    /* Signal Diode LED */
+    .signal-led-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .signal-diode {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #475569;
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+      transition: all 0.3s ease;
+    }
+
+    .signal-diode.red {
+      background: #ef4444;
+      box-shadow: 0 0 16px #ef4444, inset 0 0 4px #fee2e2;
+    }
+
+    .signal-diode.yellow {
+      background: #f59e0b;
+      box-shadow: 0 0 16px #f59e0b, inset 0 0 4px #fef3c7;
+    }
+
+    .signal-diode.green {
+      background: #10b981;
+      box-shadow: 0 0 16px #10b981, inset 0 0 4px #d1fae5;
     }
 
     .density-badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-radius: 9999px;
       font-size: 0.85rem;
       font-weight: 800;
       width: fit-content;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.5px;
     }
 
-    .badge-low { background: rgba(34, 197, 94, 0.2); color: var(--green); border: 1px solid var(--green); }
-    .badge-medium { background: rgba(245, 158, 11, 0.2); color: var(--amber); border: 1px solid var(--amber); }
-    .badge-high { background: rgba(239, 68, 68, 0.25); color: var(--red); border: 1px solid var(--red); }
+    .badge-low { 
+      background: rgba(16, 185, 129, 0.15); 
+      color: #34d399; 
+      border: 1px solid rgba(16, 185, 129, 0.35); 
+    }
+    .badge-medium { 
+      background: rgba(245, 158, 11, 0.15); 
+      color: #fbbf24; 
+      border: 1px solid rgba(245, 158, 11, 0.35); 
+    }
+    .badge-high { 
+      background: rgba(244, 63, 94, 0.18); 
+      color: #fb7185; 
+      border: 1px solid rgba(244, 63, 94, 0.4); 
+    }
 
     /* Main Workspace */
     .workspace-grid {
       display: grid;
       grid-template-columns: 340px 1fr;
-      gap: 18px;
+      gap: 20px;
     }
 
-    @media (max-width: 960px) {
+    @media (max-width: 980px) {
       .workspace-grid {
         grid-template-columns: 1fr;
       }
@@ -377,55 +540,59 @@
     }
 
     .upload-box {
-      background: var(--bg-surface);
-      border: 2px dashed var(--border);
-      border-radius: 14px;
-      padding: 28px 18px;
+      border: 2px dashed rgba(255, 255, 255, 0.15);
+      padding: 32px 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
     }
 
     .upload-box:hover {
       border-color: var(--cyan);
-      background: rgba(56, 189, 248, 0.04);
+      background: rgba(56, 189, 248, 0.05);
+      transform: translateY(-2px);
     }
 
     .upload-icon {
-      font-size: 2.5rem;
-      margin-bottom: 10px;
+      font-size: 2.8rem;
+      margin-bottom: 12px;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
     }
 
     .upload-box h3 {
-      font-size: 1.05rem;
+      font-size: 1.1rem;
       font-weight: 700;
-      margin-bottom: 4px;
+      color: var(--text-primary);
+      margin-bottom: 5px;
     }
 
     .upload-box p {
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       color: var(--text-muted);
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
 
     .btn-browse {
-      background: var(--cyan);
-      color: #0b1120;
+      background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+      color: #040812;
       font-weight: 700;
-      font-size: 0.85rem;
-      padding: 8px 18px;
-      border-radius: 8px;
+      font-size: 0.88rem;
+      padding: 9px 22px;
+      border-radius: var(--radius-sm);
       border: none;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px var(--cyan-glow);
     }
 
     .btn-browse:hover {
-      background: #7dd3fc;
+      filter: brightness(1.1);
+      transform: translateY(-1px);
     }
 
     #file-input {
@@ -433,13 +600,10 @@
     }
 
     .slider-box {
-      background: var(--bg-surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px 18px;
+      padding: 16px 20px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
     }
 
     .slider-header {
@@ -450,22 +614,28 @@
       color: var(--text-secondary);
     }
 
-    input[type="range"] {
-      width: 100%;
-      accent-color: var(--cyan);
-      cursor: pointer;
+    .slider-header span:last-child {
+      color: var(--cyan);
+      font-family: 'JetBrains Mono', monospace;
     }
 
-    /* Right Side: Display Canvas / Screen */
+    input[type="range"] {
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: #1e293b;
+      accent-color: var(--cyan);
+      cursor: pointer;
+      outline: none;
+    }
+
+    /* Right Side: Vision HUD Viewport Screen */
     .display-panel {
-      background: var(--bg-surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 18px;
+      padding: 20px 24px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      min-height: 480px;
+      gap: 16px;
+      min-height: 520px;
     }
 
     .display-header {
@@ -473,221 +643,341 @@
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 12px;
     }
 
     .display-header h3 {
-      font-size: 1rem;
+      font-size: 1.05rem;
       font-weight: 700;
       color: var(--cyan);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+    }
+
+    .hud-meta-badge {
+      font-size: 0.78rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-muted);
+      background: rgba(30, 41, 59, 0.6);
+      padding: 3px 10px;
+      border-radius: 9999px;
+      border: 1px solid var(--border);
     }
 
     .action-buttons {
       display: flex;
-      gap: 8px;
+      gap: 10px;
     }
 
     .btn-action {
       background: var(--bg-card);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-light);
       color: var(--text-primary);
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 0.8rem;
+      padding: 7px 15px;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
-      text-decoration: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
     }
 
     .btn-action:hover {
       background: var(--cyan);
-      color: #0b1120;
+      color: #06090f;
       border-color: var(--cyan);
+      box-shadow: 0 4px 14px var(--cyan-glow);
     }
 
+    /* Cybernetic Viewport Reticle */
     .preview-viewport {
-      background: #000;
-      border: 1px solid var(--border);
-      border-radius: 10px;
+      background: #020408;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: var(--radius-md);
       position: relative;
-      min-height: 400px;
+      min-height: 440px;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Camera HUD Overlay Corner Reticles */
+    .preview-viewport::before {
+      content: "";
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      width: 20px;
+      height: 20px;
+      border-top: 2px solid var(--cyan);
+      border-left: 2px solid var(--cyan);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .preview-viewport::after {
+      content: "";
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      width: 20px;
+      height: 20px;
+      border-bottom: 2px solid var(--cyan);
+      border-right: 2px solid var(--cyan);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .hud-watermark-top {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: rgba(56, 189, 248, 0.75);
+      background: rgba(2, 6, 23, 0.65);
+      backdrop-filter: blur(4px);
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      z-index: 6;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      pointer-events: none;
     }
 
     #output-image {
       max-width: 100%;
-      max-height: 580px;
+      max-height: 600px;
       width: auto;
       height: auto;
       object-fit: contain;
-      border-radius: 6px;
+      border-radius: 4px;
       transition: opacity 0.25s ease;
     }
 
     #output-video {
       max-width: 100%;
-      max-height: 580px;
+      max-height: 600px;
       display: none;
-      border-radius: 6px;
+      border-radius: 4px;
     }
 
     .spinner-loader {
       display: none;
       position: absolute;
-      width: 52px;
-      height: 52px;
-      border: 4px solid rgba(56, 189, 248, 0.2);
+      width: 56px;
+      height: 56px;
+      border: 4px solid rgba(56, 189, 248, 0.15);
       border-top-color: var(--cyan);
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
+      z-index: 10;
     }
 
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
 
-    /* Breakdown Chips */
+    /* Breakdown Chips Bar */
     .chips-bar {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       flex-wrap: wrap;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 16px;
     }
 
     .chip-item {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      padding: 5px 12px;
-      border-radius: 16px;
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       font-weight: 600;
       color: var(--text-secondary);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .chip-item b {
       color: var(--cyan);
+      font-family: 'JetBrains Mono', monospace;
+      font-feature-settings: 'tnum';
     }
 
-    /* Task 5 Gallery Grid */
-    #task5-gallery {
-      display: none;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 12px;
-      max-height: 420px;
-      overflow-y: auto;
-      padding: 8px;
-      background: #0b1120;
-      border-radius: 8px;
-    }
-
-    .gallery-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .gallery-card img {
-      width: 100%;
-      height: 110px;
-      object-fit: cover;
-      cursor: pointer;
-    }
-
-    .gallery-card-footer {
-      padding: 6px 10px;
-      font-size: 0.75rem;
-      color: var(--text-secondary);
-      display: flex;
-      justify-content: space-between;
-    }
-
-    /* Task 1 Diagnostic View */
+    /* Diagnostics Table (Task 1) */
     #task1-diag {
       display: none;
-      background: #0f172a;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px;
-      font-family: monospace;
-      font-size: 0.85rem;
-      color: #94a3b8;
-      max-height: 380px;
-      overflow-y: auto;
+      width: 100%;
+      padding: 24px;
+      overflow-x: auto;
     }
 
     .diag-table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 8px;
+      margin-top: 14px;
+      font-size: 0.88rem;
+      font-family: 'JetBrains Mono', monospace;
     }
 
     .diag-table th, .diag-table td {
-      padding: 6px 10px;
+      padding: 10px 14px;
       text-align: left;
       border-bottom: 1px solid var(--border);
     }
 
     .diag-table th {
+      background: rgba(30, 41, 59, 0.5);
       color: var(--cyan);
-      font-size: 0.8rem;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
     }
 
-    .text-ok { color: var(--green); font-weight: bold; }
-    .text-fail { color: var(--red); font-weight: bold; }
+    .diag-table tr:hover {
+      background: rgba(56, 189, 248, 0.05);
+    }
 
-    /* Detections Data Table (Collapsible) */
-    details.details-table-box {
-      background: var(--bg-surface);
+    .text-ok { color: var(--green); font-weight: 700; }
+    .text-fail { color: var(--red); font-weight: 700; }
+
+    /* Frame Gallery (Task 5) */
+    #task5-gallery {
+      display: none;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 14px;
+      width: 100%;
+      padding: 20px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    .gallery-card {
+      background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px 18px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .gallery-card:hover {
+      border-color: var(--cyan);
+      transform: scale(1.03);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+    }
+
+    .gallery-card img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .gallery-card-footer {
+      padding: 8px 12px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.76rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-muted);
+    }
+
+    /* Collapsible Detections Log Table */
+    details.details-table-box {
+      padding: 18px 24px;
+      border-radius: var(--radius-md);
     }
 
     details.details-table-box summary {
-      cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.95rem;
       font-weight: 700;
-      color: var(--cyan);
+      color: var(--text-primary);
+      cursor: pointer;
       outline: none;
+      user-select: none;
+      transition: color 0.2s;
+    }
+
+    details.details-table-box summary:hover {
+      color: var(--cyan);
     }
 
     .detections-table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 12px;
-      font-size: 0.82rem;
+      margin-top: 16px;
+      font-size: 0.86rem;
     }
 
     .detections-table th, .detections-table td {
-      padding: 8px 12px;
+      padding: 11px 16px;
       text-align: left;
       border-bottom: 1px solid var(--border);
     }
 
     .detections-table th {
+      background: rgba(30, 41, 59, 0.5);
       color: var(--text-muted);
+      font-size: 0.74rem;
       text-transform: uppercase;
-      font-size: 0.75rem;
+      letter-spacing: 0.8px;
     }
+
+    .detections-table tr:hover {
+      background: rgba(56, 189, 248, 0.04);
+    }
+
+    .conf-bar-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .conf-bar {
+      flex: 1;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      overflow: hidden;
+      max-width: 100px;
+    }
+
+    .conf-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #0284c7, #38bdf8);
+      border-radius: 999px;
+    }
+
+    .class-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .class-car { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
+    .class-bus { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
+    .class-truck { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .class-bike { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
   </style>
 </head>
 <body>
 
 <div class="app-container">
-  <!-- Header Bar -->
-  <header class="header-card">
+  <!-- Top Header Card -->
+  <header class="header-card glass-panel">
     <div class="brand-title">
       <h1>🚦 VisionPort: Intelligent Traffic Monitor</h1>
       <p>Deep Learning Vehicle Detection, Tracking, Signal Identification & Waiting-Time Telemetry</p>
@@ -696,13 +986,14 @@
       <span class="badge-pill"><span class="status-dot"></span> System Online</span>
       <span class="badge-pill">Model: <strong>YOLOv8 Nano</strong></span>
       <span class="badge-pill" id="badge-accelerator">Device: <strong>CPU</strong></span>
-      <span class="badge-pill">Latency: <strong id="header-latency">~30ms</strong></span>
+      <span class="badge-pill">Latency: <strong id="header-latency">~28ms</strong></span>
     </div>
   </header>
 
-  <!-- Live Server Warning Banner -->
-  <div id="live-server-warning" style="display:none; background: #e63946; color: #ffffff; padding: 12px 20px; border-radius: 8px; margin: 0 auto 16px auto; font-size: 14px; text-align: center; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 4px 16px rgba(230,57,70,0.3);">
-    ⚠️ <strong>Live Server Detected (Port 5500):</strong> Static web servers cannot run Python or YOLO deep learning models. Please run <code>.\.venv\Scripts\python.exe main.py</code> and open <a href="http://127.0.0.1:8000" style="color:#00ffff; font-weight:700; text-decoration:underline;">http://127.0.0.1:8000</a> directly!
+  <!-- Live Server Detection / Offline Notification Banner -->
+  <div id="live-server-warning">
+    ⚠️ <strong>Connecting to Python Backend (Port 8000)...</strong><br>
+    If not running, start it in terminal: <code>.\.venv\Scripts\python.exe main.py</code>, or open <a href="http://127.0.0.1:8000" style="color:#00ffff; font-weight:700; text-decoration:underline;">http://127.0.0.1:8000</a>
   </div>
 
   <!-- Congestion Warning Banner -->
@@ -711,30 +1002,41 @@
   </div>
 
   <!-- Task Navigation & Selector -->
-  <section class="task-nav-container">
+  <section class="task-nav-container glass-panel">
     <div class="task-selector-row">
-      <label for="task-select">Select Task:</label>
+      <label for="task-select">🎯 Select Task:</label>
       <select id="task-select" class="task-dropdown" onchange="onTaskSelect(this.value)">
-        <option value="all">⚡ Full Pipeline (All 15 Tasks Combined)</option>
-        <option value="1">Task 1: Install Python, OpenCV & Required Libraries</option>
-        <option value="2">Task 2: Capture Image Using Camera</option>
-        <option value="3">Task 3: Read & Display Traffic Images</option>
-        <option value="4">Task 4: Load & Play Traffic Video</option>
-        <option value="5">Task 5: Extract Frames from Traffic Videos</option>
-        <option value="6">Task 6: Detect Cars in Video / Image Using YOLO</option>
-        <option value="7">Task 7: Detect Bikes, Buses & Trucks</option>
-        <option value="8">Task 8: Display Vehicle Names & Confidence Scores</option>
-        <option value="9">Task 9: Count Number of Vehicles in Frame</option>
-        <option value="10">Task 10: Calculate Traffic Density (Low/Med/High)</option>
-        <option value="11">Task 11: Detect Traffic Congestion at Signal Junctions</option>
-        <option value="12">Task 12: Track Individual Vehicles Across Frames</option>
-        <option value="13">Task 13: Calculate Approximate Vehicle Speed (km/h)</option>
-        <option value="14">Task 14: Identify Traffic Signal Status (Red/Yellow/Green)</option>
-        <option value="15">Task 15: Estimate Traffic Waiting Time</option>
+        <option value="all">⚡ Full Telemetry Pipeline (All 15 Tasks Combined)</option>
+        <optgroup label="Phase 1: Foundations">
+          <option value="1">Task 1: Install Python, OpenCV & Required Libraries</option>
+          <option value="2">Task 2: Capture Image Using Camera</option>
+          <option value="3">Task 3: Read & Display Traffic Images</option>
+          <option value="4">Task 4: Load & Play Traffic Video</option>
+          <option value="5">Task 5: Extract Frames from Traffic Videos</option>
+        </optgroup>
+        <optgroup label="Phase 2: YOLO Detection">
+          <option value="6">Task 6: Detect Cars in Video / Image Using YOLO</option>
+          <option value="7">Task 7: Detect Bikes, Buses & Trucks</option>
+          <option value="8">Task 8: Display Vehicle Names & Confidence Scores</option>
+          <option value="9">Task 9: Count Number of Vehicles in Frame</option>
+        </optgroup>
+        <optgroup label="Phase 3: Traffic Analytics & Tracking">
+          <option value="10">Task 10: Calculate Traffic Density (Low/Med/High)</option>
+          <option value="11">Task 11: Detect Traffic Congestion at Signal Junctions</option>
+          <option value="12">Task 12: Track Individual Vehicles Across Frames</option>
+          <option value="13">Task 13: Calculate Approximate Vehicle Speed (km/h)</option>
+        </optgroup>
+        <optgroup label="Phase 4: Smart Junction Control">
+          <option value="14">Task 14: Identify Traffic Signal Status (Red/Yellow/Green)</option>
+          <option value="15">Task 15: Estimate Traffic Waiting Time</option>
+        </optgroup>
       </select>
     </div>
 
     <!-- Quick Pill Nav Strip -->
+    <div class="task-phase-header">
+      <span>Milestone Navigation Strip (Tasks 1 to 15)</span>
+    </div>
     <div class="task-pills-scroll" id="task-pills">
       <button class="task-pill active" data-task="all" onclick="selectTask('all')">⚡ All Tasks</button>
       <button class="task-pill" data-task="1" onclick="selectTask('1')">T1: Env Check</button>
@@ -767,7 +1069,7 @@
   </section>
 
   <!-- Quick Test Presets Toolbar -->
-  <section class="presets-bar">
+  <section class="presets-bar glass-panel">
     <span class="presets-label">Test Presets:</span>
     <button class="btn-preset" onclick="loadPreset('intersection')">🚌 Urban Junction</button>
     <button class="btn-preset" onclick="loadPreset('congested')">🚨 Heavy Congestion</button>
@@ -776,40 +1078,43 @@
     <button class="btn-preset btn-cam" onclick="captureCamera()">📷 Snap Webcam</button>
   </section>
 
-  <!-- Telemetry Metrics Grid -->
+  <!-- Bento-Style Telemetry Metrics Grid -->
   <section class="metrics-grid">
-    <div class="metric-card">
-      <span class="metric-label">Total Vehicles</span>
+    <div class="metric-card glass-panel">
+      <span class="metric-label">🚗 Total Vehicles</span>
       <span class="metric-value" id="val-vehicles">0</span>
     </div>
-    <div class="metric-card">
-      <span class="metric-label">Traffic Density</span>
+    <div class="metric-card glass-panel">
+      <span class="metric-label">📊 Traffic Density</span>
       <span class="density-badge badge-low" id="val-density">LOW</span>
     </div>
-    <div class="metric-card">
-      <span class="metric-label">Signal Light</span>
-      <span class="metric-value" id="val-signal" style="font-size: 1.15rem; color: #ef4444;">🔴 RED</span>
+    <div class="metric-card glass-panel">
+      <span class="metric-label">🚦 Signal Light</span>
+      <div class="signal-led-container">
+        <span class="signal-diode red" id="signal-diode-indicator"></span>
+        <span class="metric-value" id="val-signal" style="font-size: 1.25rem; color: #ef4444;">RED</span>
+      </div>
     </div>
-    <div class="metric-card">
-      <span class="metric-label">Avg Speed</span>
+    <div class="metric-card glass-panel">
+      <span class="metric-label">⚡ Avg Speed</span>
       <span class="metric-value" id="val-speed" style="color: #38bdf8;">0.0 km/h</span>
     </div>
-    <div class="metric-card">
-      <span class="metric-label">Est. Wait Time</span>
-      <span class="metric-value" id="val-waittime" style="color: #22c55e;">0.0s</span>
+    <div class="metric-card glass-panel">
+      <span class="metric-label">⏱️ Est. Wait Time</span>
+      <span class="metric-value" id="val-waittime" style="color: #10b981;">0.0s</span>
     </div>
-    <div class="metric-card">
-      <span class="metric-label">Inference Latency</span>
-      <span class="metric-value" id="val-latency">~30ms</span>
+    <div class="metric-card glass-panel">
+      <span class="metric-label">🧠 Inference Latency</span>
+      <span class="metric-value" id="val-latency">~28ms</span>
     </div>
   </section>
 
-  <!-- Main Workspace (Upload + Output Preview) -->
+  <!-- Main Workspace (Upload + Vision HUD Preview) -->
   <div class="workspace-grid">
     <!-- Left Sidebar: Controls -->
     <div class="control-panel">
       <!-- Upload Drop Zone -->
-      <div class="upload-box" onclick="document.getElementById('file-input').click()">
+      <div class="upload-box glass-panel" onclick="document.getElementById('file-input').click()">
         <div class="upload-icon">📁</div>
         <h3>Upload Image or Video</h3>
         <p>Supports JPG, PNG, WEBP, MP4, AVI</p>
@@ -818,7 +1123,7 @@
       </div>
 
       <!-- Confidence Threshold Slider -->
-      <div class="slider-box">
+      <div class="slider-box glass-panel">
         <div class="slider-header">
           <span>Confidence Threshold</span>
           <span id="conf-val-label">0.25</span>
@@ -827,22 +1132,22 @@
       </div>
 
       <!-- Action Extract Frames (for Task 5 or Videos) -->
-      <div class="slider-box" id="frame-extract-controls">
+      <div class="slider-box glass-panel" id="frame-extract-controls">
         <div class="slider-header">
           <span>Task 5 Keyframe Interval</span>
           <span id="interval-val-label">15 frames</span>
         </div>
         <input type="range" id="interval-slider" min="5" max="60" step="5" value="15" oninput="document.getElementById('interval-val-label').innerText = this.value + ' frames'" />
-        <button class="btn-browse" style="margin-top: 6px; width: 100%;" onclick="triggerFrameExtraction()">Extract Video Frames Gallery</button>
+        <button class="btn-browse" style="margin-top: 8px; width: 100%;" onclick="triggerFrameExtraction()">Extract Video Frames Gallery</button>
       </div>
     </div>
 
-    <!-- Right Side: Display Screen -->
-    <div class="display-panel">
+    <!-- Right Side: Display Vision HUD Screen -->
+    <div class="display-panel glass-panel">
       <div class="display-header">
         <h3>
           <span id="display-mode-label">Output Preview</span>
-          <span id="fps-label" style="font-size: 0.8rem; color: var(--text-muted); font-weight: normal;">Ready</span>
+          <span class="hud-meta-badge" id="fps-label">Stream Ready</span>
         </h3>
         <div class="action-buttons">
           <button class="btn-action" onclick="downloadCurrentOutput()">💾 Save Output</button>
@@ -850,8 +1155,12 @@
         </div>
       </div>
 
-      <!-- Viewport Canvas / Image Preview -->
+      <!-- Viewport Canvas / Vision Reticle Preview -->
       <div class="preview-viewport">
+        <div class="hud-watermark-top">
+          <span class="status-dot"></span>
+          <span>YOLOv8 NANO • LIVE VISION</span>
+        </div>
         <div id="loading-spinner" class="spinner-loader"></div>
         <img id="output-image" src="/samples/traffic_intersection.jpg" alt="Traffic Telemetry Stream" />
         <video id="output-video" controls autoplay loop muted></video>
@@ -865,17 +1174,17 @@
 
       <!-- Chips Breakdown Bar -->
       <div class="chips-bar" id="breakdown-chips">
-        <span class="chip-item">Cars: <b id="cnt-cars">0</b></span>
-        <span class="chip-item">Bikes: <b id="cnt-bikes">0</b></span>
-        <span class="chip-item">Buses: <b id="cnt-buses">0</b></span>
-        <span class="chip-item">Trucks: <b id="cnt-trucks">0</b></span>
-        <span class="chip-item">Congestion: <b id="cnt-cong">NONE</b></span>
+        <span class="chip-item">🚗 Cars: <b id="cnt-cars">0</b></span>
+        <span class="chip-item">🏍️ Bikes: <b id="cnt-bikes">0</b></span>
+        <span class="chip-item">🚌 Buses: <b id="cnt-buses">0</b></span>
+        <span class="chip-item">🚚 Trucks: <b id="cnt-trucks">0</b></span>
+        <span class="chip-item">🚨 Congestion: <b id="cnt-cong">NONE</b></span>
       </div>
     </div>
   </div>
 
   <!-- Collapsible Detections Log Table -->
-  <details class="details-table-box">
+  <details class="details-table-box glass-panel">
     <summary>📋 View Per-Vehicle Detections & Bounding Box Telemetry</summary>
     <table class="detections-table">
       <thead>
@@ -888,9 +1197,7 @@
         </tr>
       </thead>
       <tbody id="detections-tbody">
-        <tr>
-          <td colspan="5" style="color: var(--text-muted); text-align: center;">No active detections yet. Upload a file or click a preset.</td>
-        </tr>
+        <tr><td colspan="5" style="color: var(--text-muted); text-align: center;">No vehicles detected in this frame.</td></tr>
       </tbody>
     </table>
   </details>
@@ -899,11 +1206,6 @@
 <script>
   // Automatic Backend Detection (connects to FastAPI even if opened via Live Server port 5500)
   const API_BASE = (window.location.port === "8000") ? "" : "http://127.0.0.1:8000";
-
-  if (window.location.port !== "8000") {
-    const liveWarn = document.getElementById("live-server-warning");
-    if (liveWarn) liveWarn.style.display = "block";
-  }
 
   let currentTaskId = "all";
   let currentConf = 0.25;
@@ -961,60 +1263,50 @@
     "9": {
       title: "Task 9: Count Number of Vehicles in Frame",
       expected: "Expected: Vehicle count",
-      method: "Instantaneous vehicle census computing total population and category breakdown (Cars, Bikes, Buses, Trucks)."
+      method: "Per-frame aggregation of total vehicle count and class-wise category breakdown."
     },
     "10": {
-      title: "Task 10: Calculate Traffic Density Based on Count",
+      title: "Task 10: Calculate Traffic Density (Low/Med/High)",
       expected: "Expected: Low, medium and high traffic",
-      method: "Threshold-based density classifier: LOW (<=5 vehicles), MEDIUM (6-12 vehicles), HIGH (>12 vehicles)."
+      method: "Real-time density categorization based on vehicle count (LOW <= 5, MEDIUM 6-12, HIGH > 12)."
     },
     "11": {
       title: "Task 11: Detect Traffic Congestion at Signal Junctions",
       expected: "Expected: Congestion alerts",
-      method: "Bottleneck analyzer combining vehicle count queue (>=8), stopped vehicles, and signal phases to trigger alarms."
+      method: "Junction bottleneck threshold monitor; triggers visual alarm banner and high-intensity alert overlays."
     },
     "12": {
       title: "Task 12: Track Individual Vehicles Across Frames",
       expected: "Expected: Vehicle tracking IDs",
-      method: "ByteTrack multi-object tracking association with Kalman filters for persistent unique vehicle IDs and motion trails."
+      method: "ByteTrack multi-object tracking keeping persistent vehicle identities and trajectory motion trails."
     },
     "13": {
-      title: "Task 13: Calculate Approximate Vehicle Speed",
+      title: "Task 13: Calculate Approximate Vehicle Speed (km/h)",
       expected: "Expected: Speed estimation",
-      method: "Centroid pixel displacement over temporal frame window converted via calibrated pixels-per-meter scale into km/h."
+      method: "Euclidean centroid displacement physics model calibrated with pixels-per-meter scale and frame delta."
     },
     "14": {
-      title: "Task 14: Identify Traffic Signal Status (Red, Yellow, Green)",
+      title: "Task 14: Identify Traffic Signal Status (Red/Yellow/Green)",
       expected: "Expected: Signal status detection",
-      method: "YOLO traffic light localization combined with HSV color mask segmentation for Red, Yellow, and Green lamps."
+      method: "HSV color-space segmentation with vertical light geometry weighting (Red top, Yellow mid, Green bottom)."
     },
     "15": {
       title: "Task 15: Estimate Traffic Waiting Time",
       expected: "Expected: Waiting-time report",
-      method: "Webster's queue clearance equation computing signal cycle backlog, clearance delay, and driver wait time in seconds."
+      method: "Queue clearance dynamics modeling cycle discharge capacity and driver wait duration based on active signal phase."
     }
   };
 
-  function updateConf(val) {
-    currentConf = parseFloat(val);
-    document.getElementById("conf-val-label").innerText = currentConf.toFixed(2);
+  // Switch Active Task
+  function onTaskSelect(val) {
+    selectTask(val);
   }
 
   function selectTask(taskId) {
-    currentTaskId = String(taskId);
-    document.getElementById("task-select").value = currentTaskId;
-    updateTaskUI();
-    retriggerCurrentView();
-  }
+    currentTaskId = taskId;
+    document.getElementById("task-select").value = taskId;
 
-  function onTaskSelect(taskId) {
-    currentTaskId = String(taskId);
-    updateTaskUI();
-    retriggerCurrentView();
-  }
-
-  function updateTaskUI() {
-    // Update active pill
+    // Update Pill Buttons
     document.querySelectorAll(".task-pill").forEach(p => {
       if (p.getAttribute("data-task") === currentTaskId) {
         p.classList.add("active");
@@ -1024,20 +1316,35 @@
       }
     });
 
-    // Update Details Card
+    updateTaskUI();
+    retriggerCurrentView();
+  }
+
+  function updateTaskUI() {
     const info = TASK_METADATA[currentTaskId] || TASK_METADATA["all"];
     document.getElementById("cur-task-title").innerText = info.title;
     document.getElementById("cur-task-expected").innerText = info.expected;
     document.getElementById("cur-task-method").innerText = info.method;
-    document.getElementById("display-mode-label").innerText = `Output Preview: ${info.title}`;
 
-    // Adjust views
-    const isTask1 = currentTaskId === "1";
-    const isTask5 = currentTaskId === "5";
-    document.getElementById("task1-diag").style.display = isTask1 ? "block" : "none";
-    document.getElementById("task5-gallery").style.display = isTask5 ? "grid" : "none";
-    document.getElementById("output-image").style.display = (isTask1 || isTask5) ? "none" : "block";
+    // Toggle Task-specific controls
+    const frameExtractBox = document.getElementById("frame-extract-controls");
+    if (currentTaskId === "5") {
+      frameExtractBox.style.display = "flex";
+    } else {
+      frameExtractBox.style.display = "none";
+    }
+
+    // Reset view visibility
+    document.getElementById("task1-diag").style.display = "none";
+    document.getElementById("task5-gallery").style.display = "none";
+    document.getElementById("output-image").style.display = "block";
     document.getElementById("output-video").style.display = "none";
+  }
+
+  function updateConf(val) {
+    currentConf = parseFloat(val);
+    document.getElementById("conf-val-label").innerText = currentConf.toFixed(2);
+    retriggerCurrentView();
   }
 
   function setLoader(loading) {
@@ -1097,7 +1404,6 @@
         }
       }
     } catch (e) {
-      // Retry in 3s if still disconnected
       setTimeout(checkBackendHealth, 3000);
     }
   }
@@ -1269,77 +1575,99 @@
     const t = data.telemetry;
     currentTelemetry = t;
 
-    // Display image
+    const img = document.getElementById("output-image");
     if (data.image_base64) {
       lastImageBase64 = data.image_base64;
-      const img = document.getElementById("output-image");
       img.src = data.image_base64;
       img.style.display = "block";
       document.getElementById("task1-diag").style.display = "none";
       document.getElementById("task5-gallery").style.display = "none";
     }
 
-    // Telemetry values
-    document.getElementById("val-vehicles").innerText = t.total_vehicles || "0";
-    document.getElementById("val-latency").innerText = `${t.latency_ms || 25}ms`;
-    document.getElementById("header-latency").innerText = `~${t.latency_ms || 25}ms`;
-    document.getElementById("val-speed").innerText = `${(t.avg_speed_kmh || 0).toFixed(1)} km/h`;
-    document.getElementById("val-waittime").innerText = `${(t.wait_time_sec || 0).toFixed(1)}s`;
+    // Telemetry Cards
+    document.getElementById("val-vehicles").innerText = t.vehicle_count !== undefined ? t.vehicle_count : "0";
+    
+    // Density Badge
+    const densityVal = t.traffic_density || "LOW";
+    const denElem = document.getElementById("val-density");
+    denElem.innerText = densityVal;
+    denElem.className = `density-badge badge-${densityVal.toLowerCase()}`;
 
-    // Traffic Density Badge
-    const densityBadge = document.getElementById("val-density");
-    densityBadge.innerText = t.density || "LOW";
-    densityBadge.className = "density-badge " + (
-      t.density === "HIGH" ? "badge-high" :
-      t.density === "MEDIUM" ? "badge-medium" : "badge-low"
-    );
-
-    // Traffic Signal Badge
+    // Traffic Signal Diode LED
     const sigElem = document.getElementById("val-signal");
-    if (t.signal_status === "RED") {
-      sigElem.innerHTML = "🔴 RED";
+    const diodeElem = document.getElementById("signal-diode-indicator");
+    const sigStatus = (t.signal_status || "UNKNOWN").toUpperCase();
+    sigElem.innerText = sigStatus;
+
+    if (sigStatus === "RED") {
       sigElem.style.color = "#ef4444";
-    } else if (t.signal_status === "YELLOW") {
-      sigElem.innerHTML = "🟡 YELLOW";
+      if (diodeElem) diodeElem.className = "signal-diode red";
+    } else if (sigStatus === "YELLOW" || sigStatus === "AMBER") {
       sigElem.style.color = "#f59e0b";
-    } else if (t.signal_status === "GREEN") {
-      sigElem.innerHTML = "🟢 GREEN";
-      sigElem.style.color = "#22c55e";
+      if (diodeElem) diodeElem.className = "signal-diode yellow";
+    } else if (sigStatus === "GREEN") {
+      sigElem.style.color = "#10b981";
+      if (diodeElem) diodeElem.className = "signal-diode green";
     } else {
-      sigElem.innerHTML = "⚪ " + (t.signal_status || "UNKNOWN");
-      sigElem.style.color = "#9ca3af";
+      sigElem.style.color = "#94a3b8";
+      if (diodeElem) diodeElem.className = "signal-diode";
     }
 
-    // Congestion Alert Banner
+    // Average Speed & Wait Time
+    document.getElementById("val-speed").innerText = (t.average_speed_kmh || 0.0).toFixed(1) + " km/h";
+    document.getElementById("val-waittime").innerText = (t.estimated_wait_time_sec || 0.0).toFixed(1) + "s";
+    
+    const lat = t.inference_latency_ms || 28.5;
+    document.getElementById("val-latency").innerText = `~${Math.round(lat)}ms`;
+    document.getElementById("header-latency").innerText = `~${Math.round(lat)}ms`;
+
+    // Congestion Banner
     const congBanner = document.getElementById("congestion-banner");
-    congBanner.style.display = t.congested ? "block" : "none";
-    if (t.congested && t.congestion_reason) {
-      congBanner.innerText = `⚠️ CONGESTION ALERT [${t.congestion_severity}]: ${t.congestion_reason}`;
+    if (t.congestion_alert) {
+      congBanner.style.display = "block";
+      document.getElementById("cnt-cong").innerText = "ACTIVE (ALERT)";
+      document.getElementById("cnt-cong").style.color = "#ef4444";
+    } else {
+      congBanner.style.display = "none";
+      document.getElementById("cnt-cong").innerText = "CLEAR";
+      document.getElementById("cnt-cong").style.color = "#10b981";
     }
 
-    // Chips Breakdown
-    if (t.breakdown) {
-      document.getElementById("cnt-cars").innerText = t.breakdown.car || 0;
-      document.getElementById("cnt-bikes").innerText = t.breakdown.bike || 0;
-      document.getElementById("cnt-buses").innerText = t.breakdown.bus || 0;
-      document.getElementById("cnt-trucks").innerText = t.breakdown.truck || 0;
-    }
-    document.getElementById("cnt-cong").innerText = t.congested ? (t.congestion_severity || "ALERT") : "NONE";
+    // Vehicle Category Breakdown
+    const b = t.breakdown || {};
+    document.getElementById("cnt-cars").innerText = b.car || 0;
+    document.getElementById("cnt-bikes").innerText = b.bike || 0;
+    document.getElementById("cnt-buses").innerText = b.bus || 0;
+    document.getElementById("cnt-trucks").innerText = b.truck || 0;
 
-    // Populate Detections Table
+    // Viewport Meta
+    document.getElementById("fps-label").innerText = `Inference: ${lat.toFixed(1)}ms | Conf: ${currentConf}`;
+
+    // Render Detailed Detections Table
     const tbody = document.getElementById("detections-tbody");
     if (t.detections && t.detections.length > 0) {
-      tbody.innerHTML = t.detections.map((d, idx) => `
-        <tr>
-          <td>${idx + 1}</td>
-          <td><strong>${d.track_id !== null ? 'ID:' + d.track_id : '-'}</strong></td>
-          <td style="text-transform: capitalize; color: var(--cyan); font-weight: bold;">${d.label || d.raw_label}</td>
-          <td>${(d.confidence * 100).toFixed(1)}%</td>
-          <td><code>[${d.bbox.join(', ')}]</code></td>
-        </tr>
-      `).join("");
+      tbody.innerHTML = t.detections.map((d, i) => {
+        const confPercent = Math.round((d.confidence || 0) * 100);
+        const clsName = (d.class || "object").toLowerCase();
+        const badgeCls = `class-badge class-${clsName}`;
+
+        return `
+          <tr>
+            <td style="font-family: 'JetBrains Mono', monospace; color: var(--text-muted);">${i + 1}</td>
+            <td style="font-family: 'JetBrains Mono', monospace; color: var(--cyan); font-weight: 700;">${d.track_id !== undefined ? `ID#${d.track_id}` : '—'}</td>
+            <td><span class="${badgeCls}">${d.class}</span></td>
+            <td>
+              <div class="conf-bar-wrapper">
+                <div class="conf-bar"><div class="conf-bar-fill" style="width: ${confPercent}%;"></div></div>
+                <span>${confPercent}%</span>
+              </div>
+            </td>
+            <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #94a3b8;">[${d.bbox.join(", ")}]</td>
+          </tr>
+        `;
+      }).join("");
     } else {
-      tbody.innerHTML = `<tr><td colspan="5" style="color: var(--text-muted); text-align: center;">No vehicles detected in this frame.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" style="color: var(--text-muted); text-align: center; padding: 20px;">No vehicles detected in this frame.</td></tr>`;
     }
   }
 
@@ -1380,4 +1708,3 @@
 
 </body>
 </html>
-

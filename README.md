@@ -83,3 +83,4 @@ python tasks/task15_estimate_waiting_time.py
 | **13** | Calculate approximate vehicle speed | Speed estimation | `tasks/task13_calculate_vehicle_speed.py` |
 | **14** | Identify traffic signal status (red, yellow, green) | Signal status detection | `tasks/task14_identify_traffic_signal.py` |
 | **15** | Estimate traffic waiting time | Waiting-time report | `tasks/task15_estimate_waiting_time.py` |
+
