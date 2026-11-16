@@ -10,7 +10,7 @@
 2520090166_DLAC/
 └── VisionPort/                    # Complete Project Implementation
     ├── samples/                   # Input media (intersection, signal, congestion, video)
-    ├── tasks/                     # Individual student task programs (Tasks 1 to 15)
+    ├── tasks/                     # Individual student task programs (Tasks 1 to 20)
     │   ├── task1_setup_and_verify.py
     │   ├── task2_capture_traffic_signal.py
     │   ├── task3_read_display_traffic_image.py
@@ -25,11 +25,16 @@
     │   ├── task12_track_vehicles.py
     │   ├── task13_calculate_vehicle_speed.py
     │   ├── task14_identify_traffic_signal.py
-    │   └── task15_estimate_waiting_time.py
+    │   ├── task15_estimate_waiting_time.py
+    │   ├── task16_entry_exit_count.py
+    │   ├── task17_wrong_turn_detection.py
+    │   ├── task18_wrong_way_alerts.py
+    │   ├── task19_illegal_parking.py
+    │   └── task20_triple_riding.py
     ├── templates/                 # Web Portal UI
     │   └── index.html             # Interactive evaluation dashboard
     ├── main.py                    # Local FastAPI evaluation server
-    ├── run_all_tasks.py           # Automated batch runner for all 15 tasks
+    ├── run_all_tasks.py           # Automated batch runner for all 20 tasks
     ├── run_website.bat            # 1-Click launcher for web portal
     ├── requirements.txt           # Python dependencies
     └── yolov8n.pt                 # YOLOv8 pre-trained weights
@@ -48,7 +53,7 @@ python main.py
 Or simply double-click **`run_website.bat`**.  
 Open in your browser: **http://127.0.0.1:8000**
 
-### 2. Run All 15 Tasks in Batch
+### 2. Run All 20 Tasks in Batch
 ```powershell
 cd VisionPort
 python run_all_tasks.py
@@ -60,11 +65,13 @@ cd VisionPort
 python tasks/task6_detect_cars.py
 python tasks/task12_track_vehicles.py
 python tasks/task15_estimate_waiting_time.py
+python tasks/task16_entry_exit_count.py
+python tasks/task20_triple_riding.py
 ```
 
 ---
 
-## 📋 Task Mapping (Tasks 1–15)
+## 📋 Task Mapping (Tasks 1–20)
 
 | Task No. | Task Description | Expected Output | Script File |
 | :---: | :--- | :--- | :--- |
@@ -83,4 +90,9 @@ python tasks/task15_estimate_waiting_time.py
 | **13** | Calculate approximate vehicle speed | Speed estimation | `tasks/task13_calculate_vehicle_speed.py` |
 | **14** | Identify traffic signal status (red, yellow, green) | Signal status detection | `tasks/task14_identify_traffic_signal.py` |
 | **15** | Estimate traffic waiting time | Waiting-time report | `tasks/task15_estimate_waiting_time.py` |
+| **16** | Count vehicles entering and leaving a junction | Entry/exit vehicle counts | `tasks/task16_entry_exit_count.py` |
+| **17** | Detect vehicles making wrong turns at intersections | Wrong-turn alerts with turn angle | `tasks/task17_wrong_turn_detection.py` |
+| **18** | Identify vehicles moving in the wrong direction | Wrong-way vehicle alerts & flow | `tasks/task18_wrong_way_alerts.py` |
+| **19** | Detect vehicles parked in restricted traffic areas | Illegal parking alerts & dwell time | `tasks/task19_illegal_parking.py` |
+| **20** | Detect two-wheelers carrying more than two persons | Triple-riding violation alerts | `tasks/task20_triple_riding.py` |
 

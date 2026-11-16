@@ -1,7 +1,7 @@
 """VisionPort Live Portal - Main Application Server.
 
 Runs the interactive web evaluation dashboard on http://127.0.0.1:8000
-Supports task selection (Tasks 1 to 15 + All-in-One), file upload, webcam capture, and real-time YOLOv8 analytics.
+Supports task selection (Tasks 1 to 20 + All-in-One), file upload, webcam capture, and real-time YOLOv8 analytics.
 """
 
 from __future__ import annotations
@@ -9,6 +9,7 @@ from __future__ import annotations
 import base64
 import importlib
 import io
+import math
 import os
 import platform
 import sys
@@ -308,6 +309,11 @@ TASKS = {
     13: {"id": 13, "title": "Calculate Approximate Vehicle Speed (km/h)", "expected": "Speed estimation", "script": "task13_calculate_vehicle_speed.py"},
     14: {"id": 14, "title": "Identify Traffic Signal Status (Red/Yellow/Green)", "expected": "Signal status detection", "script": "task14_identify_traffic_signal.py"},
     15: {"id": 15, "title": "Estimate Traffic Waiting Time", "expected": "Waiting-time report", "script": "task15_estimate_waiting_time.py"},
+    16: {"id": 16, "title": "Count Junction Entry & Exit Vehicles", "expected": "Entry/exit vehicle counts", "script": "task16_entry_exit_count.py"},
+    17: {"id": 17, "title": "Detect Wrong Turns at Intersections", "expected": "Wrong-turn violation alerts", "script": "task17_wrong_turn_detection.py"},
+    18: {"id": 18, "title": "Wrong-Way Vehicle Direction Alerts", "expected": "Wrong-way movement alerts", "script": "task18_wrong_way_alerts.py"},
+    19: {"id": 19, "title": "Detect Illegally Parked Vehicles", "expected": "Illegal parking alerts with dwell time", "script": "task19_illegal_parking.py"},
+    20: {"id": 20, "title": "Triple-Riding Detection on Two-Wheelers", "expected": "Triple-riding violation alerts", "script": "task20_triple_riding.py"},
     "all": {"id": "all", "title": "Full Telemetry Pipeline (All Tasks Combined)", "expected": "Unified Traffic Intelligence Dashboard", "script": "run_all_tasks.py"},
 }
 
@@ -547,6 +553,200 @@ def execute_task_pipeline(task_id: int | str, img_bgr: np.ndarray, conf_thresh: 
         annotated = draw_hud(
             annotated,
             [(f"TASK 14: SIGNAL = {sig['status']} ({sig['confidence']*100:.0f}%)", col)],
+        )
+
+    elif t_key == 15:
+        dets = track_vehicles_stream(img_bgr, class_ids=ALL_VEHICLE_CLASS_IDS, conf=conf_thresh)
+        counts = count_breakdown(dets)
+        sig = detect_signal(img_bgr)
+        wait_info = estimate_waiting(counts["total"], signal=sig["status"])
+        telemetry.update({
+            "total_vehicles": counts["total"],
+            "breakdown": counts,
+            "signal_status": sig["status"],
+            "signal_confidence": sig["confidence"],
+            "wait_time_sec": wait_info["estimated_wait_sec"],
+            "queue_clearance_sec": wait_info["queue_clearance_sec"],
+            "cycles_needed": wait_info["cycles_needed"],
+            "detections": dets,
+        })
+        annotated = draw_boxes(annotated, dets, show_conf=False, show_id=True)
+        annotated = draw_hud(
+            annotated,
+            [
+                (f"TASK 15: ESTIMATED WAITING TIME = {wait_info['estimated_wait_sec']}s", (0, 255, 255)),
+                (f"Signal: {sig['status']} | Queue: {counts['total']} | Clearance: {wait_info['queue_clearance_sec']}s", (230, 230, 230)),
+            ],
+        )
+
+    elif t_key == 16:
+        entry_y = int(h * 0.38)
+        exit_y = int(h * 0.70)
+        dets = track_vehicles_stream(img_bgr, class_ids=ALL_VEHICLE_CLASS_IDS, conf=conf_thresh)
+        counts = count_breakdown(dets)
+        overlay = annotated.copy()
+        cv2.rectangle(overlay, (0, entry_y), (w, exit_y), (30, 80, 110), -1)
+        cv2.addWeighted(overlay, 0.16, annotated, 0.84, 0, annotated)
+        cv2.line(annotated, (0, entry_y), (w, entry_y), (50, 235, 90), 2)
+        cv2.putText(annotated, "JUNCTION ENTRY LINE", (16, max(22, entry_y - 8)), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (50, 235, 90), 2, cv2.LINE_AA)
+        cv2.line(annotated, (0, exit_y), (w, exit_y), (0, 165, 255), 2)
+        cv2.putText(annotated, "JUNCTION EXIT LINE", (16, max(22, exit_y - 8)), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 165, 255), 2, cv2.LINE_AA)
+        in_zone = 0
+        for d in dets:
+            cy = (d["bbox"][1] + d["bbox"][3]) // 2
+            if entry_y <= cy <= exit_y:
+                in_zone += 1
+        telemetry.update({
+            "total_vehicles": counts["total"],
+            "breakdown": counts,
+            "in_junction": in_zone,
+            "detections": dets,
+        })
+        annotated = draw_boxes(annotated, dets, show_conf=False, show_id=True)
+        annotated = draw_hud(
+            annotated,
+            [
+                (f"TASK 16: ENTRY & EXIT MONITOR | Junction Active: {in_zone}", (50, 235, 90)),
+                (f"Total Visible: {counts['total']} | Entry @ 38% | Exit @ 70%", (230, 230, 230)),
+            ],
+        )
+
+    elif t_key == 17:
+        dets = track_vehicles_stream(img_bgr, class_ids=ALL_VEHICLE_CLASS_IDS, conf=conf_thresh)
+        counts = count_breakdown(dets)
+        ix1, iy1 = int(w * 0.18), int(h * 0.22)
+        ix2, iy2 = int(w * 0.82), int(h * 0.85)
+        cv2.rectangle(annotated, (ix1, iy1), (ix2, iy2), (255, 210, 0), 2)
+        cv2.putText(annotated, "INTERSECTION TURN MONITORING ZONE", (ix1 + 10, max(22, iy1 - 8)), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 210, 0), 2, cv2.LINE_AA)
+        telemetry.update({
+            "total_vehicles": counts["total"],
+            "breakdown": counts,
+            "turn_violations": 0,
+            "detections": dets,
+        })
+        annotated = draw_boxes(annotated, dets, show_conf=False, show_id=True)
+        annotated = draw_hud(
+            annotated,
+            [
+                ("TASK 17: WRONG-TURN MONITOR | Status: ACTIVE", (255, 210, 0)),
+                (f"Monitored Vehicles: {counts['total']} | Zone: {ix2-ix1}x{iy2-iy1}px", (230, 230, 230)),
+            ],
+        )
+
+    elif t_key == 18:
+        dets = track_vehicles_stream(img_bgr, class_ids=ALL_VEHICLE_CLASS_IDS, conf=conf_thresh)
+        counts = count_breakdown(dets)
+        ax, ay = w - 70, 65
+        cv2.circle(annotated, (ax, ay), 36, (18, 22, 30), -1)
+        cv2.arrowedLine(annotated, (ax, ay - 18), (ax, ay + 18), (50, 235, 90), 3, tipLength=0.35)
+        telemetry.update({
+            "total_vehicles": counts["total"],
+            "breakdown": counts,
+            "wrong_way_alerts": 0,
+            "flow_direction": "TOP -> BOTTOM",
+            "detections": dets,
+        })
+        annotated = draw_boxes(annotated, dets, show_conf=False, show_id=True)
+        annotated = draw_hud(
+            annotated,
+            [
+                ("TASK 18: WRONG-WAY DETECTOR | Flow: TOP -> BOTTOM", (50, 235, 90)),
+                (f"Tracked: {counts['total']} | Corridor Flow Normal", (230, 230, 230)),
+            ],
+        )
+
+    elif t_key == 19:
+        dets = track_vehicles_stream(img_bgr, class_ids=ALL_VEHICLE_CLASS_IDS, conf=conf_thresh)
+        counts = count_breakdown(dets)
+        zx1, zy1 = int(w * 0.56), int(h * 0.42)
+        zx2, zy2 = int(w * 0.97), int(h * 0.94)
+        overlay = annotated.copy()
+        cv2.rectangle(overlay, (zx1, zy1), (zx2, zy2), (0, 0, 220), -1)
+        cv2.addWeighted(overlay, 0.20, annotated, 0.80, 0, annotated)
+        cv2.rectangle(annotated, (zx1, zy1), (zx2, zy2), (0, 40, 255), 3)
+        cv2.putText(annotated, "RESTRICTED NO-PARKING ZONE", (zx1 + 10, max(24, zy1 - 10)), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 60, 255), 2, cv2.LINE_AA)
+        in_curb = 0
+        for d in dets:
+            cx = (d["bbox"][0] + d["bbox"][2]) // 2
+            wheel_y = int(d["bbox"][1] + (d["bbox"][3] - d["bbox"][1]) * 0.80)
+            if zx1 <= cx <= zx2 and zy1 <= wheel_y <= zy2:
+                in_curb += 1
+        telemetry.update({
+            "total_vehicles": counts["total"],
+            "breakdown": counts,
+            "in_restricted_zone": in_curb,
+            "detections": dets,
+        })
+        annotated = draw_boxes(annotated, dets, show_conf=False, show_id=True)
+        annotated = draw_hud(
+            annotated,
+            [
+                (f"TASK 19: ILLEGAL PARKING MONITOR | In Zone: {in_curb}", (0, 40, 255) if in_curb > 0 else (245, 158, 11)),
+                (f"Restricted Area: Right Roadside Curb | Monitored: {counts['total']}", (230, 230, 230)),
+            ],
+        )
+
+    elif t_key == 20:
+        res = model.predict(img_bgr, classes=[0, 1, 3], conf=conf_thresh, verbose=False)[0]
+        bike_boxes = []
+        person_boxes = []
+        if res.boxes is not None and len(res.boxes) > 0:
+            for box in res.boxes:
+                cid = int(box.cls[0])
+                coords = [int(round(float(v))) for v in box.xyxy[0].cpu().tolist()]
+                if cid in [1, 3]:
+                    bike_boxes.append(coords)
+                elif cid == 0:
+                    person_boxes.append(coords)
+        bike_riders = {i: [] for i in range(len(bike_boxes))}
+        for pbox in person_boxes:
+            px1, py1, px2, py2 = pbox
+            pcx = (px1 + px2) / 2.0
+            p_hip_y = py1 + (py2 - py1) * 0.65
+            best_idx = None
+            best_d = float("inf")
+            for bi, bbox in enumerate(bike_boxes):
+                bx1, by1, bx2, by2 = bbox
+                bw = max(1.0, bx2 - bx1)
+                bh = max(1.0, by2 - by1)
+                bcx = (bx1 + bx2) / 2.0
+                bcy = (by1 + by2) / 2.0
+                rx1, rx2 = bx1 - 0.22 * bw, bx2 + 0.22 * bw
+                ry1, ry2 = max(0.0, by1 - 0.75 * bh), by2 + 0.10 * bh
+                if rx1 <= pcx <= rx2 and ry1 <= p_hip_y <= ry2:
+                    d = math.hypot(pcx - bcx, p_hip_y - bcy)
+                    if d < best_d:
+                        best_d = d
+                        best_idx = bi
+            if best_idx is not None:
+                bike_riders[best_idx].append(pbox)
+        violations = 0
+        for bi, bbox in enumerate(bike_boxes):
+            riders = len(bike_riders[bi])
+            x1, y1, x2, y2 = bbox
+            if riders > 2:
+                violations += 1
+                color = (0, 0, 255)
+                lbl = f"TRIPLE RIDING! ({riders} Persons)"
+            else:
+                color = (50, 230, 90)
+                lbl = f"2-Wheeler | Riders: {riders}"
+            cv2.rectangle(annotated, (x1, y1), (x2, y2), color, 3 if riders > 2 else 2)
+            cv2.putText(annotated, lbl, (x1, max(20, y1 - 8)), cv2.FONT_HERSHEY_SIMPLEX, 0.55, color, 2, cv2.LINE_AA)
+            for pbox in bike_riders[bi]:
+                cv2.rectangle(annotated, (pbox[0], pbox[1]), (pbox[2], pbox[3]), (255, 220, 80), 1)
+        telemetry.update({
+            "total_vehicles": len(bike_boxes),
+            "two_wheelers": len(bike_boxes),
+            "triple_riding_violations": violations,
+            "status": "TRIPLE-RIDING ALERT" if violations > 0 else "COMPLIANT",
+        })
+        annotated = draw_hud(
+            annotated,
+            [
+                (f"TASK 20: TRIPLE-RIDING MONITOR | Violations: {violations}", (0, 0, 255) if violations > 0 else (168, 85, 247)),
+                (f"Two-Wheelers: {len(bike_boxes)} | Pedestrians/Riders: {len(person_boxes)}", (230, 230, 230)),
+            ],
         )
 
     else:

@@ -1006,7 +1006,7 @@
     <div class="task-selector-row">
       <label for="task-select">🎯 Select Task:</label>
       <select id="task-select" class="task-dropdown" onchange="onTaskSelect(this.value)">
-        <option value="all">⚡ Full Telemetry Pipeline (All 15 Tasks Combined)</option>
+        <option value="all">⚡ Full Telemetry Pipeline (All 20 Tasks Combined)</option>
         <optgroup label="Phase 1: Foundations">
           <option value="1">Task 1: Install Python, OpenCV & Required Libraries</option>
           <option value="2">Task 2: Capture Image Using Camera</option>
@@ -1030,12 +1030,19 @@
           <option value="14">Task 14: Identify Traffic Signal Status (Red/Yellow/Green)</option>
           <option value="15">Task 15: Estimate Traffic Waiting Time</option>
         </optgroup>
+        <optgroup label="Phase 5: Advanced Violations & Junction Analytics">
+          <option value="16">Task 16: Count Vehicles Entering & Leaving a Junction</option>
+          <option value="17">Task 17: Wrong-Turn Detection at Intersections</option>
+          <option value="18">Task 18: Wrong-Way Vehicle Direction Alerts</option>
+          <option value="19">Task 19: Illegal Parking Detection in Restricted Zones</option>
+          <option value="20">Task 20: Triple-Riding Detection on Two-Wheelers</option>
+        </optgroup>
       </select>
     </div>
 
     <!-- Quick Pill Nav Strip -->
     <div class="task-phase-header">
-      <span>Milestone Navigation Strip (Tasks 1 to 15)</span>
+      <span>Milestone Navigation Strip (Tasks 1 to 20)</span>
     </div>
     <div class="task-pills-scroll" id="task-pills">
       <button class="task-pill active" data-task="all" onclick="selectTask('all')">⚡ All Tasks</button>
@@ -1054,6 +1061,11 @@
       <button class="task-pill" data-task="13" onclick="selectTask('13')">T13: Speed</button>
       <button class="task-pill" data-task="14" onclick="selectTask('14')">T14: Signal</button>
       <button class="task-pill" data-task="15" onclick="selectTask('15')">T15: Wait Time</button>
+      <button class="task-pill" data-task="16" onclick="selectTask('16')">T16: Entry/Exit</button>
+      <button class="task-pill" data-task="17" onclick="selectTask('17')">T17: Wrong Turn</button>
+      <button class="task-pill" data-task="18" onclick="selectTask('18')">T18: Wrong Way</button>
+      <button class="task-pill" data-task="19" onclick="selectTask('19')">T19: Illegal Park</button>
+      <button class="task-pill" data-task="20" onclick="selectTask('20')">T20: Triple Riding</button>
     </div>
 
     <!-- Task Details Card -->
@@ -1294,6 +1306,31 @@
       title: "Task 15: Estimate Traffic Waiting Time",
       expected: "Expected: Waiting-time report",
       method: "Queue clearance dynamics modeling cycle discharge capacity and driver wait duration based on active signal phase."
+    },
+    "16": {
+      title: "Task 16: Junction Entry & Exit Vehicle Counter",
+      expected: "Expected: Entry/exit counts and net vehicles inside junction",
+      method: "Junction polygon boundary tracking with bidirectional virtual tripwire gates counting entrants and exits."
+    },
+    "17": {
+      title: "Task 17: Wrong-Turn Detection at Intersections",
+      expected: "Expected: Wrong-turn violation alerts with turn angle",
+      method: "Trajectory directional vector curvature analysis detecting non-compliant turning angles (>55°) inside the intersection zone."
+    },
+    "18": {
+      title: "Task 18: Wrong-Way Vehicle Alerts",
+      expected: "Expected: Wrong-way vehicle detection and flow direction",
+      method: "Dominant corridor vector flow projection triggering instant high-priority red alerts for counter-flow trajectories."
+    },
+    "19": {
+      title: "Task 19: Illegal Parking Detection in Restricted Zones",
+      expected: "Expected: Illegal parking violation alerts with dwell time",
+      method: "Curbside no-parking spatial geofencing combined with velocity dwell thresholds detecting stationary vehicles."
+    },
+    "20": {
+      title: "Task 20: Triple-Riding Detection on Two-Wheelers",
+      expected: "Expected: Triple-riding violation alerts",
+      method: "Multi-class spatial association binding pedestrian centroids to two-wheeler saddles; alerts when occupant count > 2."
     }
   };
 

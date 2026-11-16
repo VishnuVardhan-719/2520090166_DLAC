@@ -1,6 +1,6 @@
 # VisionPort – Intelligent Vehicle Detection and Traffic Monitoring Using Deep Learning
 
-VisionPort is an end-to-end intelligent traffic monitoring system built with Python, OpenCV 5.0, and Ultralytics YOLOv8. It covers all 15 student project tasks individually and provides a modern interactive evaluation web portal.
+VisionPort is an end-to-end intelligent traffic monitoring system built with Python, OpenCV 5.0, and Ultralytics YOLOv8. It covers all 20 student project tasks individually and provides a modern interactive evaluation web portal.
 
 ---
 
@@ -14,7 +14,7 @@ VisionPort/
 │   ├── traffic_intersection.jpg   # Multi-vehicle urban junction test image
 │   ├── traffic_sample.mp4         # Multi-phase traffic video (Red -> Green -> Yellow)
 │   └── traffic_signal.jpg         # Traffic signal test image
-├── tasks/                         # Dedicated scripts for Tasks 1 to 15
+├── tasks/                         # Dedicated scripts for Tasks 1 to 20
 │   ├── task1_setup_and_verify.py
 │   ├── task2_capture_traffic_signal.py
 │   ├── task3_read_display_traffic_image.py
@@ -29,14 +29,19 @@ VisionPort/
 │   ├── task12_track_vehicles.py
 │   ├── task13_calculate_vehicle_speed.py
 │   ├── task14_identify_traffic_signal.py
-│   └── task15_estimate_waiting_time.py
+│   ├── task15_estimate_waiting_time.py
+│   ├── task16_entry_exit_count.py
+│   ├── task17_wrong_turn_detection.py
+│   ├── task18_wrong_way_alerts.py
+│   ├── task19_illegal_parking.py
+│   └── task20_triple_riding.py
 ├── templates/                     # Web evaluation portal template
 │   └── index.html                 # Interactive UI for testing all tasks
 ├── .gitignore                     # Git ignore rules
 ├── main.py                        # FastAPI web application server
 ├── README.md                      # Project documentation
 ├── requirements.txt               # Pinned dependencies
-├── run_all_tasks.py               # Automated batch verification for all 15 tasks
+├── run_all_tasks.py               # Automated batch verification for all 20 tasks
 └── yolov8n.pt                     # YOLOv8 Nano pre-trained weights
 ```
 
@@ -107,6 +112,21 @@ Run any task directly with its own script:
 
 # Task 15: Estimate Traffic Waiting Time
 .\.venv\Scripts\python.exe tasks\task15_estimate_waiting_time.py
+
+# Task 16: Junction Entry & Exit Counter
+.\.venv\Scripts\python.exe tasks\task16_entry_exit_count.py
+
+# Task 17: Wrong-Turn Detection
+.\.venv\Scripts\python.exe tasks\task17_wrong_turn_detection.py
+
+# Task 18: Wrong-Way Vehicle Alerts
+.\.venv\Scripts\python.exe tasks\task18_wrong_way_alerts.py
+
+# Task 19: Illegal Parking Detection
+.\.venv\Scripts\python.exe tasks\task19_illegal_parking.py
+
+# Task 20: Triple-Riding Detection
+.\.venv\Scripts\python.exe tasks\task20_triple_riding.py
 ```
 
 ---
@@ -130,5 +150,10 @@ Run any task directly with its own script:
 | **13** | Calculate approximate vehicle speed | Speed estimation | `tasks/task13_calculate_vehicle_speed.py` |
 | **14** | Identify traffic signal status (red, yellow, green) | Signal status detection | `tasks/task14_identify_traffic_signal.py` |
 | **15** | Estimate traffic waiting time | Waiting-time report | `tasks/task15_estimate_waiting_time.py` |
+| **16** | Count vehicles entering and leaving a junction | Entry/exit vehicle counts | `tasks/task16_entry_exit_count.py` |
+| **17** | Detect vehicles making wrong turns at intersections | Wrong-turn alerts with turn angle | `tasks/task17_wrong_turn_detection.py` |
+| **18** | Identify vehicles moving in the wrong direction | Wrong-way vehicle alerts & flow | `tasks/task18_wrong_way_alerts.py` |
+| **19** | Detect vehicles parked in restricted traffic areas | Illegal parking alerts & dwell time | `tasks/task19_illegal_parking.py` |
+| **20** | Detect two-wheelers carrying more than two persons | Triple-riding violation alerts | `tasks/task20_triple_riding.py` |
 
 

@@ -1,4 +1,4 @@
-"""Run and verify all 15 VisionPort individual task programs end-to-end."""
+"""Run and verify all 20 VisionPort individual task programs end-to-end."""
 
 from __future__ import annotations
 
@@ -27,11 +27,16 @@ TASKS = [
     (13, "Calculate vehicle speed", "task13_calculate_vehicle_speed.py", ["--headless", "--max-frames", "30"]),
     (14, "Identify traffic signal status", "task14_identify_traffic_signal.py", ["--headless", "--max-frames", "30"]),
     (15, "Estimate traffic waiting time", "task15_estimate_waiting_time.py", ["--headless", "--max-frames", "30"]),
+    (16, "Junction entry and exit count", "task16_entry_exit_count.py", ["--headless", "--max-frames", "30"]),
+    (17, "Wrong-turn detection", "task17_wrong_turn_detection.py", ["--headless", "--max-frames", "30"]),
+    (18, "Wrong-way vehicle alerts", "task18_wrong_way_alerts.py", ["--headless", "--max-frames", "30"]),
+    (19, "Illegal parking detection", "task19_illegal_parking.py", ["--headless", "--max-frames", "30"]),
+    (20, "Triple-riding detection", "task20_triple_riding.py", ["--headless", "--max-frames", "30"]),
 ]
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Run all 15 VisionPort task programs.")
+    parser = argparse.ArgumentParser(description="Run all 20 VisionPort task programs.")
     args = parser.parse_args()
 
     failures = []
